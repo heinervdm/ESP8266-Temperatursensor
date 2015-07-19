@@ -153,6 +153,11 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	os_printf("Got MAC addr: %s\n", macstr);
 	float v = readvdd33()/1024.;
 	os_printf("Got power reading: %d.%d\n", (int)v, (int)((v-(int)v)*100));
+	if (v < 3) {
+		// I don't know if i can really shut it off this way but it's the best way i've found.
+		os_printf("Truning off to protect the battery from exhaustive discharge\n");
+		system_deep_sleep(0);
+	}
 	os_delay_us(1);
 
 	char buf[200];
