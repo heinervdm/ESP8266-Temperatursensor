@@ -9306,6 +9306,8 @@ Source: www.cypressindustries.com</description>
 <part name="X1" library="con-cypressindustries" deviceset="MINI-USB-" device="32005-201"/>
 <part name="GND14" library="supply1" deviceset="GND" device=""/>
 <part name="SUPPLY3" library="supply2" deviceset="V+" device=""/>
+<part name="R9" library="resistor" deviceset="R-EU_" device="M0805" value="4K7"/>
+<part name="C4" library="resistor" deviceset="C-EU" device="C1206" value="100u"/>
 </parts>
 <sheets>
 <sheet>
@@ -9339,7 +9341,7 @@ Source: www.cypressindustries.com</description>
 <instance part="GND8" gate="1" x="93.98" y="119.38" rot="R270"/>
 <instance part="R4" gate="G$1" x="81.28" y="116.84"/>
 <instance part="P+10" gate="VCC" x="73.66" y="116.84" rot="R90"/>
-<instance part="P+1" gate="VCC" x="137.16" y="127" rot="R270"/>
+<instance part="P+1" gate="VCC" x="149.86" y="127" rot="R270"/>
 <instance part="FRAME1" gate="G$1" x="-83.82" y="-27.94"/>
 <instance part="TP1" gate="G$1" x="88.9" y="127" rot="R90"/>
 <instance part="TP2" gate="G$1" x="83.82" y="124.46" rot="R90"/>
@@ -9369,6 +9371,8 @@ Source: www.cypressindustries.com</description>
 <instance part="X1" gate="G$1" x="-2.54" y="127" rot="R90"/>
 <instance part="GND14" gate="1" x="2.54" y="119.38"/>
 <instance part="SUPPLY3" gate="1" x="-7.62" y="119.38" rot="R180"/>
+<instance part="R9" gate="G$1" x="142.24" y="124.46"/>
+<instance part="C4" gate="G$1" x="83.82" y="78.74" rot="R270"/>
 </instances>
 <busses>
 </busses>
@@ -9381,6 +9385,9 @@ Source: www.cypressindustries.com</description>
 <pinref part="C2" gate="G$1" pin="2"/>
 <wire x1="78.74" y1="88.9" x2="78.74" y2="99.06" width="0.1524" layer="91"/>
 <junction x="78.74" y="99.06"/>
+<pinref part="C4" gate="G$1" pin="2"/>
+<wire x1="78.74" y1="78.74" x2="78.74" y2="88.9" width="0.1524" layer="91"/>
+<junction x="78.74" y="88.9"/>
 </segment>
 <segment>
 <pinref part="R2" gate="G$1" pin="1"/>
@@ -9413,7 +9420,10 @@ Source: www.cypressindustries.com</description>
 <segment>
 <pinref part="U1" gate="G$1" pin="CH_PD"/>
 <pinref part="P+1" gate="VCC" pin="VCC"/>
-<wire x1="134.62" y1="127" x2="129.54" y2="127" width="0.1524" layer="91"/>
+<wire x1="147.32" y1="127" x2="129.54" y2="127" width="0.1524" layer="91"/>
+<pinref part="R9" gate="G$1" pin="2"/>
+<wire x1="147.32" y1="124.46" x2="147.32" y2="127" width="0.1524" layer="91"/>
+<junction x="147.32" y="127"/>
 </segment>
 <segment>
 <pinref part="R3" gate="G$1" pin="2"/>
@@ -9434,6 +9444,9 @@ Source: www.cypressindustries.com</description>
 <pinref part="C2" gate="G$1" pin="1"/>
 <wire x1="86.36" y1="88.9" x2="86.36" y2="99.06" width="0.1524" layer="91"/>
 <junction x="86.36" y="99.06"/>
+<pinref part="C4" gate="G$1" pin="1"/>
+<wire x1="86.36" y1="78.74" x2="86.36" y2="88.9" width="0.1524" layer="91"/>
+<junction x="86.36" y="88.9"/>
 </segment>
 <segment>
 <pinref part="SV1" gate="G$1" pin="5"/>
@@ -9637,6 +9650,7 @@ Source: www.cypressindustries.com</description>
 <pinref part="U1" gate="G$1" pin="GPIO18"/>
 <wire x1="129.54" y1="124.46" x2="137.16" y2="124.46" width="0.1524" layer="91"/>
 <label x="132.08" y="124.46" size="1.778" layer="95"/>
+<pinref part="R9" gate="G$1" pin="1"/>
 </segment>
 <segment>
 <pinref part="RESET" gate="1" pin="P1"/>
