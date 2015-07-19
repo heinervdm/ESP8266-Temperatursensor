@@ -6,8 +6,22 @@
 	if (isset($_REQUEST["uid"]) && isset($_REQUEST["value"])) {
 		for ($i = 0; $i < sizeof($_REQUEST['uid']); $i++) {
 			echo "Adding value ".$i.": ".$_REQUEST["value"][$i]."; uid: ".$_REQUEST['uid'][$i].";";
-			$stmt = $db->prepare('INSERT INTO value (daemonid, value) VALUES ((SELECT daemonid FROM daemon WHERE uid = :uid), :value);');
+			$stmt = $db->prepare('SELECT daemonid FROM daemon WHERE uid = :uid');
 			$stmt->bindValue(':uid', $_REQUEST["uid"][$i], SQLITE3_TEXT);
+			$results = $stmt->execute();
+			$row = $results->fetchArray();
+			$daemonid = 0;
+			if (isset($row['daemonid'])) {
+				$daemonid = $row['daemonid'];
+			} else {
+				$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname) VALUES (:uid, :uid, :uid);');
+				$stmt->bindValue(':uid', $_REQUEST["uid"][$i], SQLITE3_TEXT);
+				$stmt->execute();
+				$daemonid = $db->lastInsertId();
+			}
+
+			$stmt = $db->prepare('INSERT INTO value (daemonid, value) VALUES (:daemonid, :value);');
+			$stmt->bindValue(':daemonid', $daemonid, SQLITE3_INTEGER);
 			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], SQLITE3_FLOAT);
 			$stmt->execute();
 		}
@@ -25,6 +39,23 @@
 		$daemonid = $db->lastInsertRowID();
 		$msg='<div class="message">Daemon '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
 	}
+	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="edit"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])&&isset($_REQUEST['daemonid'])) {
+		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit WHERE daemonid=:daemonid;');
+		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
+		$stmt->bindValue(':name', $_REQUEST["name"], SQLITE3_TEXT);
+		$stmt->bindValue(':shortname', $_REQUEST["shortname"], SQLITE3_TEXT);
+		$stmt->bindValue(':unit', $_REQUEST["unit"], SQLITE3_TEXT);
+		$stmt->bindValue(':uid', $_REQUEST["uid"], SQLITE3_TEXT);
+		$stmt->execute();
+
+		$msg='<div class="message">Updated Daemon '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
+	}
+	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="delete"&&isset($_REQUEST['daemonid'])) {
+		$stmt = $db->prepare('DELETE FROM daemon WHERE daemonid=:daemonid;');
+		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
+		$stmt->execute();
+		$msg='<div class="message">Daemon '.$_REQUEST['daemonid']." deleted.</div>\n";
+	}
 	$colors=array('#C0C0C0','#808080','#000000','#FF0000','#800000','#FFFF00','#808000','#00FF00','#008000','#00FFFF','#008080','#0000FF','#000080','#FF00FF','#800080');
 ?><!DOCTYPE html>
 <html>
@@ -39,28 +70,34 @@
 <?php if (isset($msg)) echo $msg;?>
 
 		<h1>Messwerte</h1>
-		<table>
-			<tr>
-				<th>Id</th>
-				<th>Name</th>
-				<th>Aktueller Wert</th>
-				<th>Letzte Aktualisierung</th>
-			</tr>
+		<form action="<?php echo $_SERVER['PHP_SELF'];?>" method="GET">
+			<table>
+				<tr>
+					<th>Id</th>
+					<th>Name</th>
+					<th>Aktueller Wert</th>
+					<th>Letzte Aktualisierung</th>
+					<th>Plot</th>
+					<th></th>
+				</tr>
 <?php
 	$results = $db->query('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
 	while ($row = $results->fetchArray()) {
 ?>
-			<tr>
-				<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
-				<td><?php echo $row['shortname'];?></td>
-				<td><?php echo $row['value'];?> <?php echo $row['unit'];?></td>
-				<td><?php echo date('d.m.Y H:i:s',strtotime($row['time']));?></td>
-			</tr>
+				<tr>
+					<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
+					<td><?php echo $row['shortname'];?></td>
+					<td><?php echo $row['value'];?> <?php echo $row['unit'];?></td>
+					<td><?php echo date('d.m.Y H:i:s',strtotime($row['time']));?></td>
+					<td><input type="checkbox" name="show[]" value="<?php echo $row['daemonid'];?>" <?php if (isset($_REQUEST['show']) && in_array($row['daemonid'],$_REQUEST['show'])) echo 'checked="checked"';?> onchange="this.form.submit()" /></td>
+					<td><a href="?edit=<?php echo $row['daemonid'];?>#edit">Edit</a> <a href="?delete=<?php echo $row['daemonid'];?>#delete">Delete</a> </td>
+				</tr>
 <?php
 	}
 	$results->finalize();
 ?>
-		</table>
+			</table>
+		</form>
 
 <?php
 	if (isset($_REQUEST['show'])) {
@@ -82,43 +119,43 @@
 		<script>
 			var ctx = document.getElementById("myChart").getContext("2d");
 			var data =<?php
-	$data = array();
-	$stmt = $db->prepare('SELECT daemonid, name, shortname, unit FROM daemon WHERE daemonid IN ('.$ids.');');
-	for ($i=0;$i<sizeof($_REQUEST['show']);$i++) {
-		$stmt->bindValue(':id'.$i, $_REQUEST['show'][$i]);
-	}
-	$results = $stmt->execute();
-	$i=0;
-	while ($row = $results->fetchArray()) {
-		$c = $i + 10;
-		$data[$i]['label'] = $row['name'];
-		$data[$i]['strokeColor'] = $colors[$i%sizeof($colors)];
-		$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
-		$data[$i]['pointStrokeColor'] = '#fff';
-		$data[$i]['data'] = array();
-		$stmt2 = $db->prepare("SELECT value, strftime('%s',time, 'localtime')*1000 AS time FROM value WHERE daemonid=:id AND time BETWEEN datetime(:starttime, 'unixepoch', 'localtime') AND datetime(:endtime, 'unixepoch', 'localtime') ORDER BY time ASC;");
-		$stmt2->bindValue(':id', $row['daemonid']);
-		$stmt2->bindValue(':starttime', $starttime);
-		$stmt2->bindValue(':endtime', $endtime);
-		$results2 = $stmt2->execute();
-		$j=0;
-		while ($row2 = $results2->fetchArray()) {
-// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
-			$data[$i]['data'][$j]['x']=$row2['time'];
-			$data[$i]['data'][$j]['y']=$row2['value'];
-			$j++;
+		$data = array();
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit FROM daemon WHERE daemonid IN ('.$ids.');');
+		for ($i=0;$i<sizeof($_REQUEST['show']);$i++) {
+			$stmt->bindValue(':id'.$i, $_REQUEST['show'][$i]);
 		}
-		$i++;
-	}
-	$json = json_encode($data);
-// 	$json = preg_replace("/\"(\d+-\d+-\d+T\d+:\d+:\d+)\"/i","new Date(\"\\1\")", $json);
-// 	$json = str_replace(",",",\n",$json);
-	echo $json;
+		$results = $stmt->execute();
+		$i=0;
+		while ($row = $results->fetchArray()) {
+			$c = $i + 10;
+			$data[$i]['label'] = $row['name'];
+			$data[$i]['strokeColor'] = $colors[$i%sizeof($colors)];
+			$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
+			$data[$i]['pointStrokeColor'] = '#fff';
+			$data[$i]['data'] = array();
+			$stmt2 = $db->prepare("SELECT value, strftime('%s',time, 'localtime')*1000 AS time FROM value WHERE daemonid=:id AND time BETWEEN datetime(:starttime, 'unixepoch', 'localtime') AND datetime(:endtime, 'unixepoch', 'localtime') ORDER BY time ASC;");
+			$stmt2->bindValue(':id', $row['daemonid']);
+			$stmt2->bindValue(':starttime', $starttime);
+			$stmt2->bindValue(':endtime', $endtime);
+			$results2 = $stmt2->execute();
+			$j=0;
+			while ($row2 = $results2->fetchArray()) {
+	// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
+				$data[$i]['data'][$j]['x']=$row2['time'];
+				$data[$i]['data'][$j]['y']=$row2['value'];
+				$j++;
+			}
+			$i++;
+		}
+		$json = json_encode($data);
+	// 	$json = preg_replace("/\"(\d+-\d+-\d+T\d+:\d+:\d+)\"/i","new Date(\"\\1\")", $json);
+	// 	$json = str_replace(",",",\n",$json);
+		echo $json;
 ?>;
-			new Chart(ctx).Scatter(data, {scaleType: "date",bezierCurve: false,});
+			new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
 		</script>
 <?php
-}
+	}
 ?>
 
 		<h1>Add Daemon</h1>
@@ -142,6 +179,61 @@
 			<input type="hidden" name="action" value="adddaemon" />
 			<input type="submit" value="Add" />
 		</form>
-	
+
+<?php
+	if (isset($_REQUEST['edit'])) {
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = '.$_REQUEST['edit'].';');
+		$stmt->bindValue(':id', $_REQUEST['edit']);
+		$results = $stmt->execute();
+		if ($row = $results->fetchArray()) {
+?>
+		<h1 name="edit">Edit Daemon</h1>
+		<form action="index.php" method="POST">
+			<lable for="uid">UID:</lable>
+			<input id="uid" name="uid" type="text" value="<?php echo $row['uid'];?>" required="required"/>
+			<br />
+
+			<lable for="name">Name:</lable>
+			<input id="name" name="name" type="text" value="<?php echo $row['name'];?>" required="required"/>
+			<br />
+
+			<lable for="shortname">Kurzname:</lable>
+			<input id="shortname" name="shortname" type="text" value="<?php echo $row['shortname'];?>" required="required" />
+			<br />
+
+			<lable for="unit">Einheit:</lable>
+			<input id="unit" name="unit" type="text" value="<?php echo $row['unit'];?>" required="required" />
+			<br />
+
+			<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
+			<input type="hidden" name="action" value="edit" />
+			<input type="submit" value="Modify" />
+		</form>
+
+<?php
+		}
+	}
+?>
+
+<?php
+	if (isset($_REQUEST['delete'])) {
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = '.$_REQUEST['edit'].';');
+		$stmt->bindValue(':id', $_REQUEST['delete']);
+		$results = $stmt->execute();
+		if ($row = $results->fetchArray()) {
+?>
+		<h1 name="edit">Delete Daemon</h1>
+		<form action="index.php" method="POST">
+			<p>Delete Daemon <?php echo $row['shortname'];?> (<?php echo $row['name'];?>) with UID <?php echo $row['uid'];?> ?</p>
+			<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
+			<input type="hidden" name="action" value="delete" />
+			<input type="submit" value="Delete" />
+		</form>
+
+<?php
+		}
+	}
+?>
+
 	</body>
 </html>
