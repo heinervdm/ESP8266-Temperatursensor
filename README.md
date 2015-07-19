@@ -8,3 +8,5 @@ DS18X20 readout: http://siwawi.bauing.uni-kl.de/avr_projects/tempsensor/
 Makefile & user_main structure: https://github.com/esp8266/source-code-examples
 
 ESP8266 eagle footprint: https://github.com/wvanvlaenderen/ESP8266-Eagle_Library
+
+Javascript plotting: https://github.com/dima117/Chart.Scatter
