@@ -8,9 +8,11 @@
 	 */
 	// The commands
 	$commands = array(
+		'cd $PWD/..',
 		'echo $PWD',
 		'whoami',
 		'git pull',
+		'git status',
 	);
 	// Run the commands for output
 	$output = '';
