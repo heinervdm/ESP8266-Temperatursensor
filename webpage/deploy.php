@@ -8,9 +8,6 @@
 	 */
 	// The commands
 	$commands = array(
-		'cd $PWD/..',
-		'echo $PWD',
-		'whoami',
 		'git pull',
 		'git status',
 	);
