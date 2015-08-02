@@ -64,6 +64,17 @@
 		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
 		<script src="Chart.min.js"></script>
 		<script src="Chart.Scatter.min.js"></script>
+		<style>
+			 form.tableform {
+				display: table;
+			 }
+			 form.tableform div {
+				display: table-row;
+			 }
+			 form.tableform div input, form.tableform div lable, form.tableform div p {
+				display: table-cell;
+			 }
+		</style>
 	</head>
 	<body>
 
@@ -158,26 +169,28 @@
 	}
 ?>
 
-		<h1>Add Daemon</h1>
-		<form action="index.php" method="POST">
-			<lable for="uid">UID:</lable>
-			<input id="uid" name="uid" type="text" required="required"/>
-			<br />
-
-			<lable for="name">Name:</lable>
-			<input id="name" name="name" type="text" required="required"/>
-			<br />
-
-			<lable for="shortname">Kurzname:</lable>
-			<input id="shortname" name="shortname" type="text" required="required" />
-			<br />
-
-			<lable for="unit">Einheit:</lable>
-			<input id="unit" name="unit" type="text" required="required" />
-			<br />
-
-			<input type="hidden" name="action" value="adddaemon" />
-			<input type="submit" value="Add" />
+		<h1>Add Sensor</h1>
+		<form class="tableform" action="index.php" method="POST">
+			<div>
+				<lable for="uid">UID:</lable>
+				<input id="uid" name="uid" type="text" required="required"/>
+			</div>
+			<div>
+				<lable for="name">Name:</lable>
+				<input id="name" name="name" type="text" required="required"/>
+			</div>
+			<div>
+				<lable for="shortname">Kurzname:</lable>
+				<input id="shortname" name="shortname" type="text" required="required" />
+			</div>
+			<div>
+				<lable for="unit">Einheit:</lable>
+				<input id="unit" name="unit" type="text" required="required" />
+			</div>
+			<div>
+				<input type="hidden" name="action" value="adddaemon" />
+				<input type="submit" value="Add" />
+			</div>
 		</form>
 
 <?php
@@ -188,26 +201,28 @@
 		if ($row = $results->fetchArray()) {
 ?>
 		<h1 name="edit">Edit Daemon</h1>
-		<form action="index.php" method="POST">
-			<lable for="uid">UID:</lable>
-			<input id="uid" name="uid" type="text" value="<?php echo $row['uid'];?>" required="required"/>
-			<br />
-
-			<lable for="name">Name:</lable>
-			<input id="name" name="name" type="text" value="<?php echo $row['name'];?>" required="required"/>
-			<br />
-
-			<lable for="shortname">Kurzname:</lable>
-			<input id="shortname" name="shortname" type="text" value="<?php echo $row['shortname'];?>" required="required" />
-			<br />
-
-			<lable for="unit">Einheit:</lable>
-			<input id="unit" name="unit" type="text" value="<?php echo $row['unit'];?>" required="required" />
-			<br />
-
-			<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
-			<input type="hidden" name="action" value="edit" />
-			<input type="submit" value="Modify" />
+		<form class="tableform" action="index.php" method="POST">
+			<div>
+				<lable for="uid">UID:</lable>
+				<input id="uid" name="uid" type="text" value="<?php echo $row['uid'];?>" required="required"/>
+			</div>
+			<div>
+				<lable for="name">Name:</lable>
+				<input id="name" name="name" type="text" value="<?php echo $row['name'];?>" required="required"/>
+			</div>
+			<div>
+				<lable for="shortname">Kurzname:</lable>
+				<input id="shortname" name="shortname" type="text" value="<?php echo $row['shortname'];?>" required="required" />
+			</div>
+			<div>
+				<lable for="unit">Einheit:</lable>
+				<input id="unit" name="unit" type="text" value="<?php echo $row['unit'];?>" required="required" />
+			</div>
+			<div>
+				<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
+				<input type="hidden" name="action" value="edit" />
+				<input type="submit" value="Modify" />
+			</div>
 		</form>
 
 <?php
@@ -222,7 +237,7 @@
 		$results = $stmt->execute();
 		if ($row = $results->fetchArray()) {
 ?>
-		<h1 name="edit">Delete Daemon</h1>
+		<h1 name="delete">Delete Daemon</h1>
 		<form action="index.php" method="POST">
 			<p>Delete Daemon <?php echo $row['shortname'];?> (<?php echo $row['name'];?>) with UID <?php echo $row['uid'];?> ?</p>
 			<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
