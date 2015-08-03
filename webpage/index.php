@@ -5,7 +5,7 @@
 		$first=true;
 		foreach ($_REQUEST as $key => $val) {
 			if ($key==$ignorekey) continue;
-			if (first) $url.='?';
+			if ($first) $url.='?';
 			else $url.='&amp;';
 			$url.=$key.'='.$val;
 		}
