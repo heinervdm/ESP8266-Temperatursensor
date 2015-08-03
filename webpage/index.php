@@ -103,22 +103,19 @@
 			 #chartbox {
 				width: 800px;
 				max-width: 100%;
-				display: table;
 			 }
 			 #timebox {
-				width: 800pt;
-				display: table-row;
-			 }
-			 #starttimebox, #endtimebox {
-				display: table-cell;
+				width: 100%;
 			 }
 			 #starttimebox {
 				text-align: left;
 				width:50%;
+				float:left;
 			 }
 			 #endtimebox {
 				text-align: right;
 				width: 50%;
+				float:right;
 			 }
 			 #chart {
 				max-width:100%;
