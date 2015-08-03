@@ -5,9 +5,23 @@
 		$first=true;
 		foreach ($_REQUEST as $key => $val) {
 			if ($key==$ignorekey) continue;
-			if ($first) $url.='?';
-			else $url.='&amp;';
-			$url.=$key.'='.$val;
+			if (is_array($val) {
+				foreach ($val as $key2 => $val2) {
+					if ($first) {
+						$url.='?';
+						$first=false;
+					}
+					else $url.='&amp;';
+					$url.=$key2.'[]='.$val2;
+				}
+			} else {
+				if ($first) {
+					$url.='?';
+					$first=false;
+				}
+				else $url.='&amp;';
+				$url.=$key.'='.$val;
+			}
 		}
 		return $url;
 	}
