@@ -12,7 +12,7 @@
 						$first=false;
 					}
 					else $url.='&amp;';
-					$url.=$key2.'[]='.$val2;
+					$url.=$key.'[]='.$val2;
 				}
 			} else {
 				if ($first) {
