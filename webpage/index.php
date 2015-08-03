@@ -1,5 +1,16 @@
 <?php
 	date_default_timezone_set('Europe/Berlin');
+	function buildUrl($ignorekey='') {
+		$url=$_SERVER['PHP_SELF'];
+		$first=true;
+		foreach ($_REQUEST as $key => $val) {
+			if ($key==$ignorekey) continue;
+			if (first) $url.='?';
+			else $url.='&amp;';
+			$url.=$key.'='.$val;
+		}
+		return $url;
+	}
 	$db = new SQLite3('log.db');
 	$db->exec("CREATE TABLE IF NOT EXISTS value (valueid INTEGER PRIMARY KEY ASC, value REAL, daemonid INTEGER, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
 	$db->exec("CREATE TABLE IF NOT EXISTS daemon (daemonid INTEGER PRIMARY KEY ASC, unit TEXT, name TEXT UNIQUE, shortname TEXT UNIQUE, uid TEXT UNIQUE);");
@@ -37,7 +48,7 @@
 		$stmt->execute();
 
 		$daemonid = $db->lastInsertRowID();
-		$msg='<div class="message">Daemon '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
+		$msg='<div class="message">Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="edit"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit WHERE daemonid=:daemonid;');
@@ -48,13 +59,13 @@
 		$stmt->bindValue(':uid', $_REQUEST["uid"], SQLITE3_TEXT);
 		$stmt->execute();
 
-		$msg='<div class="message">Updated Daemon '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
+		$msg='<div class="message">Updated Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="delete"&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('DELETE FROM daemon WHERE daemonid=:daemonid;');
 		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
 		$stmt->execute();
-		$msg='<div class="message">Daemon '.$_REQUEST['daemonid']." deleted.</div>\n";
+		$msg='<div class="message">Sensor '.$_REQUEST['daemonid']." deleted.</div>\n";
 	}
 	$colors=array('#C0C0C0','#808080','#000000','#FF0000','#800000','#FFFF00','#808000','#00FF00','#008000','#00FFFF','#008080','#0000FF','#000080','#FF00FF','#800080');
 ?><!DOCTYPE html>
@@ -165,6 +176,11 @@
 ?>;
 			new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
 		</script>
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.time()-60*60;?>">start 1 hour earlier</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.time()-60*60*24;?>">start 1 day earlier</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.time()+60*60;?>">start 1 hour later</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.time()+60*60*24;?>">start 1 day later</a> 
+
 <?php
 	}
 ?>
