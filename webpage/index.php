@@ -190,10 +190,10 @@
 ?>;
 			new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
 		</script>
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.(time()-60*60);?>">start 1 hour earlier</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.(time()-60*60*24);?>">start 1 day earlier</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.(time()+60*60);?>">start 1 hour later</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.(time()+60*60*24);?>">start 1 day later</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">start 1 hour earlier</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">start 1 day earlier</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">start 1 hour later</a> 
+		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">start 1 day later</a> 
 
 <?php
 	}
