@@ -100,10 +100,21 @@
 				display: table-cell;
 			 }
 			 #timebox {
+				width: 800pt;
 				display: table-row;
 			 }
 			 #starttimebox, #endtimebox {
 				display: table-cell;
+			 }
+			 #starttimebox {
+				text-align: left;
+			 }
+			 #endtimebox {
+				text-align: right;
+			 }
+			 #chart {
+				width: 800pt;
+				height: 400pt;
 			 }
 		</style>
 	</head>
@@ -157,7 +168,7 @@
 			if ($i<sizeof($_REQUEST['show'])-1) $ids.=',';
 		}
 ?>
-		<canvas id="myChart" width="800" height="400"></canvas>
+		<canvas id="chart"></canvas>
 		<script>
 			var ctx = document.getElementById("myChart").getContext("2d");
 			var data =<?php
