@@ -62,7 +62,7 @@
 		$stmt->execute();
 
 		$daemonid = $db->lastInsertRowID();
-		$msg='<div class="message">Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
+		$msg='		<div class="message">Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="edit"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit WHERE daemonid=:daemonid;');
@@ -73,20 +73,21 @@
 		$stmt->bindValue(':uid', $_REQUEST["uid"], SQLITE3_TEXT);
 		$stmt->execute();
 
-		$msg='<div class="message">Updated Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
+		$msg='		<div class="message">Updated Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="delete"&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('DELETE FROM daemon WHERE daemonid=:daemonid;');
 		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
 		$stmt->execute();
-		$msg='<div class="message">Sensor '.$_REQUEST['daemonid']." deleted.</div>\n";
+		$msg='		<div class="message">Sensor '.$_REQUEST['daemonid']." deleted.</div>\n";
 	}
 	$colors=array('#C0C0C0','#808080','#000000','#FF0000','#800000','#FFFF00','#808000','#00FF00','#008000','#00FFFF','#008080','#0000FF','#000080','#FF00FF','#800080');
 ?><!DOCTYPE html>
 <html>
 	<head>
 		<title>Log DB</title>
-		<meta http-equiv="Content-Type" content="text/html; charset=iso-8859-1">
+		<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+		<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 		<script src="Chart.min.js"></script>
 		<script src="Chart.Scatter.min.js"></script>
 		<style>
@@ -108,15 +109,15 @@
 			 }
 			 #starttimebox {
 				text-align: left;
-				width:400pt;
+				width:50%;
 			 }
 			 #endtimebox {
 				text-align: right;
-				width: 400pt;
+				width: 50%;
 			 }
 			 #chart {
-				width: 800pt;
-				height: 400pt;
+				max-width:100%;
+				height:auto;
 			 }
 		</style>
 	</head>
@@ -170,10 +171,11 @@
 			if ($i<sizeof($_REQUEST['show'])-1) $ids.=',';
 		}
 ?>
-		<canvas id="chart"></canvas>
-		<script>
-			var ctx = document.getElementById("chart").getContext("2d");
-			var data =<?php
+		<div id="chartbox">
+			<canvas id="chart" width="800" height="400"></canvas>
+			<script>
+				var ctx = document.getElementById("chart").getContext("2d");
+				var data =<?php
 		$data = array();
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit FROM daemon WHERE daemonid IN ('.$ids.');');
 		for ($i=0;$i<sizeof($_REQUEST['show']);$i++) {
@@ -207,22 +209,23 @@
 	// 	$json = str_replace(",",",\n",$json);
 		echo $json;
 ?>;
-			new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
-		</script>
-		<div id="timebox">
-			<div id="starttimebox">
-				<a alt="Start 1 day earlier"  href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">&laquo;</a> 
-				<a alt="Start 1 hour earlier" href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">&lsaquo;</a> 
-				starttime
-				<a alt="Start 1 hour later"   href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">&rsaquo;</a> 
-				<a alt="Start 1 day later"    href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">&raquo;</a>
-			</div>
-			<div id="endtimebox">
-				<a alt="End 1 day earlier"  href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60*24);?>">&laquo;</a> 
-				<a alt="End 1 hour earlier" href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60);?>">&lsaquo;</a> 
-				endtime
-				<a alt="End 1 hour later"   href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60);?>">&rsaquo;</a> 
-				<a alt="End 1 day later"    href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60*24);?>">&raquo;</a>
+				new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
+			</script>
+			<div id="timebox">
+				<div id="starttimebox">
+					<a alt="Start 1 day earlier"  href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">&laquo;</a> 
+					<a alt="Start 1 hour earlier" href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">&lsaquo;</a> 
+					starttime
+					<a alt="Start 1 hour later"   href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">&rsaquo;</a> 
+					<a alt="Start 1 day later"    href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">&raquo;</a>
+				</div>
+				<div id="endtimebox">
+					<a alt="End 1 day earlier"  href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60*24);?>">&laquo;</a> 
+					<a alt="End 1 hour earlier" href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60);?>">&lsaquo;</a> 
+					endtime
+					<a alt="End 1 hour later"   href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60);?>">&rsaquo;</a> 
+					<a alt="End 1 day later"    href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60*24);?>">&raquo;</a>
+				</div>
 			</div>
 		</div>
 <?php
