@@ -99,6 +99,12 @@
 			 form.tableform div input, form.tableform div lable, form.tableform div p {
 				display: table-cell;
 			 }
+			 #timebox {
+				display: table-row;
+			 }
+			 #starttimebox, #endtimebox {
+				display: table-cell;
+			 }
 		</style>
 	</head>
 	<body>
@@ -190,11 +196,22 @@
 ?>;
 			new Chart(ctx).Scatter(data, {animation:false, scaleType: "date",bezierCurve: false,});
 		</script>
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">start 1 hour earlier</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">start 1 day earlier</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">start 1 hour later</a> 
-		<a href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">start 1 day later</a> 
-
+		<div id="timebox">
+			<div id="starttimebox">
+				<a alt="Start 1 day earlier"  href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">&laquo;</a> 
+				<a alt="Start 1 hour earlier" href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">&lasquo;</a> 
+				starttime
+				<a alt="Start 1 hour later"   href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">&rasquo;</a> 
+				<a alt="Start 1 day later"    href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">&raquo;</a>
+			</div>
+			<div id="endtimebox">
+				<a alt="End 1 day earlier"  href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60*24);?>">&laquo;</a> 
+				<a alt="End 1 hour earlier" href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60);?>">&lasquo;</a> 
+				endtime
+				<a alt="End 1 hour later"   href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60);?>">&rasquo;</a> 
+				<a alt="End 1 day later"    href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60*24);?>">&raquo;</a>
+			</div>
+		</div>
 <?php
 	}
 ?>
