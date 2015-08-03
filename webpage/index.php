@@ -100,6 +100,11 @@
 			 form.tableform div input, form.tableform div lable, form.tableform div p {
 				display: table-cell;
 			 }
+			 #chartbox {
+				width: 800px;
+				max-width: 100%;
+				display: table;
+			 }
 			 #timebox {
 				width: 800pt;
 				display: table-row;
