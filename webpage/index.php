@@ -5,7 +5,7 @@
 		$first=true;
 		foreach ($_REQUEST as $key => $val) {
 			if ($key==$ignorekey) continue;
-			if (is_array($val) {
+			if (is_array($val)) {
 				foreach ($val as $key2 => $val2) {
 					if ($first) {
 						$url.='?';
