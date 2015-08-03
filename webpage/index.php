@@ -199,16 +199,16 @@
 		<div id="timebox">
 			<div id="starttimebox">
 				<a alt="Start 1 day earlier"  href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60*24);?>">&laquo;</a> 
-				<a alt="Start 1 hour earlier" href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">&lasquo;</a> 
+				<a alt="Start 1 hour earlier" href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime-60*60);?>">&lsaquo;</a> 
 				starttime
-				<a alt="Start 1 hour later"   href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">&rasquo;</a> 
+				<a alt="Start 1 hour later"   href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60);?>">&rsaquo;</a> 
 				<a alt="Start 1 day later"    href="<?php echo buildUrl('starttime').'&amp;starttime='.($starttime+60*60*24);?>">&raquo;</a>
 			</div>
 			<div id="endtimebox">
 				<a alt="End 1 day earlier"  href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60*24);?>">&laquo;</a> 
-				<a alt="End 1 hour earlier" href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60);?>">&lasquo;</a> 
+				<a alt="End 1 hour earlier" href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime-60*60);?>">&lsaquo;</a> 
 				endtime
-				<a alt="End 1 hour later"   href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60);?>">&rasquo;</a> 
+				<a alt="End 1 hour later"   href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60);?>">&rsaquo;</a> 
 				<a alt="End 1 day later"    href="<?php echo buildUrl('endtime').'&amp;endtime='.($endtime+60*60*24);?>">&raquo;</a>
 			</div>
 		</div>
