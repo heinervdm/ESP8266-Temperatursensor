@@ -108,9 +108,11 @@
 			 }
 			 #starttimebox {
 				text-align: left;
+				width:400pt;
 			 }
 			 #endtimebox {
 				text-align: right;
+				width: 400pt;
 			 }
 			 #chart {
 				width: 800pt;
@@ -170,7 +172,7 @@
 ?>
 		<canvas id="chart"></canvas>
 		<script>
-			var ctx = document.getElementById("myChart").getContext("2d");
+			var ctx = document.getElementById("chart").getContext("2d");
 			var data =<?php
 		$data = array();
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit FROM daemon WHERE daemonid IN ('.$ids.');');
