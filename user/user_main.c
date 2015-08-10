@@ -142,7 +142,7 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	for (uint8_t i = 0; i < n;i++) {
 		int32_t temp = getTemperature(i);
 		getHexStr(&uid[0],&gSensorIDs[i][0],OW_ROMCODE_SIZE);
-		os_sprintf(buf2,"&value[]=%d.%d&uid[]=%s",temp/10000,temp%10000,uid);
+		os_sprintf(buf2,"&value[]=%d.%04d&uid[]=%s",temp/10000,temp%10000,uid);
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 	}
@@ -152,7 +152,7 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	getHexStr(&macstr[0],&mac[0],6);
 	os_printf("Got MAC addr: %s\n", macstr);
 	float v = readvdd33()/1024.;
-	os_printf("Got power reading: %d.%d\n", (int)v, (int)((v-(int)v)*100));
+	os_printf("Got power reading: %d.%02d\n", (int)v, (int)((v-(int)v)*100));
 	if (v < 3) {
 		// I don't know if i can really shut it off this way but it's the best way i've found.
 		os_printf("Truning off to protect the battery from exhaustive discharge\n");
@@ -162,7 +162,7 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 
 	char buf[200];
 	int len = os_sprintf(buf,
-						"GET /index.php?uid[]=%s&value[]=%d.%d%s HTTP/1.1\r\n"
+						"GET /index.php?uid[]=%s&value[]=%d.%02d%s HTTP/1.1\r\n"
 						"Host: " HOSTNAME ":%d\r\n"
 						"Connection: close\r\n"
 						"User-Agent: ESP8266\r\n"
