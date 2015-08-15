@@ -6217,8 +6217,8 @@ W = angled&lt;p&gt;
 <device name="TO92" package="TO92">
 <connects>
 <connect gate="G$1" pin="DATA" pad="2"/>
-<connect gate="G$1" pin="GND" pad="1"/>
-<connect gate="G$1" pin="VDD" pad="3"/>
+<connect gate="G$1" pin="GND" pad="3"/>
+<connect gate="G$1" pin="VDD" pad="1"/>
 </connects>
 <technologies>
 <technology name=""/>

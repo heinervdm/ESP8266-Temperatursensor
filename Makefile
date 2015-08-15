@@ -18,13 +18,13 @@ BUILD_BASE	= build
 FW_BASE		= firmware
 
 # base directory for the compiler
-XTENSA_TOOLS_ROOT ?= /home/zimmermann/Source/esp8266/esp-open-sdk/xtensa-lx106-elf/bin/
+XTENSA_TOOLS_ROOT ?= /opt/cross/xtensa-lx106-g++/bin/
 
 # base directory of the ESP8266 SDK package, absolute
-SDK_BASE	?= /home/zimmermann/Source/esp8266/sdk
+SDK_BASE	?= /opt/cross/xtensa-lx106-g++/
 
 # esptool.py path and port
-ESPTOOL		?= PATH=$(PATH):$(XTENSA_TOOLS_ROOT) /home/zimmermann/Source/esp8266/esp-open-sdk/esptool/esptool.py
+ESPTOOL		?= esptool.py
 ESPPORT		?= /dev/ttyUSB0
 
 # name for the target project
