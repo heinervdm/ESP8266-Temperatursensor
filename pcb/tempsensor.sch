@@ -6320,8 +6320,8 @@ W = angled&lt;p&gt;
 <library name="18650">
 <packages>
 <package name="HA1X18650">
-<smd name="P$1" x="0" y="39.66" dx="6.35" dy="8" layer="1"/>
-<smd name="P$2" x="0" y="-39.66" dx="6.35" dy="8" layer="1"/>
+<smd name="P$1" x="0" y="39.66" dx="7.62" dy="8" layer="1"/>
+<smd name="P$2" x="0" y="-39.66" dx="7.62" dy="8" layer="1"/>
 <hole x="-8" y="-35.93" drill="2.4"/>
 <hole x="8" y="-27.6" drill="3.45"/>
 <hole x="-8" y="27.6" drill="3.45"/>
