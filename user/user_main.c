@@ -232,6 +232,66 @@ void wifi_handle_event_cb(System_Event_t *evt) {
 	}
 }
 
+/******************************************************************************
+ * FunctionName : scan_done
+ * Description  : scan done callback
+ * Parameters   :  arg: contain the aps information;
+ *                         status: scan over status
+ * Returns      : none
+ *******************************************************************************/
+void ICACHE_FLASH_ATTR
+scan_done(void *arg, STATUS status)
+{
+	uint8 ssid[33];
+	char temp[128];
+	
+	if (status == OK)
+	{
+		struct bss_info *bss_link = (struct bss_info *)arg;
+		bss_link = bss_link->next.stqe_next;//ignore the first one , it's invalid.
+		
+		while (bss_link != NULL)
+		{
+			os_memset(ssid, 0, 33);
+			if (os_strlen(bss_link->ssid) <= 32)
+			{
+				os_memcpy(ssid, bss_link->ssid, os_strlen(bss_link->ssid));
+			}
+			else
+			{
+				os_memcpy(ssid, bss_link->ssid, 32);
+			}
+			os_printf("(%d,\"%s\",%d,\""MACSTR"\",%d)\r\n",
+					  bss_link->authmode, ssid, bss_link->rssi,
+			 MAC2STR(bss_link->bssid),bss_link->channel);
+			bss_link = bss_link->next.stqe_next;
+		}
+	}
+	else
+	{
+		os_printf("scan fail !!!\r\n");
+	}
+	
+}
+
+/******************************************************************************
+ * FunctionName : user_scan
+ * Description  : wifi scan, only can be called after system init done.
+ * Parameters   :  none
+ * Returns      : none
+ *******************************************************************************/
+void ICACHE_FLASH_ATTR
+user_scan(void)
+{
+	if(wifi_get_opmode() == SOFTAP_MODE)
+	{
+		os_printf("ap mode can't scan !!!\r\n");
+		return;
+	}
+	wifi_station_scan(NULL,scan_done);
+	
+}
+
 //Init function 
 void ICACHE_FLASH_ATTR user_init() {
 	char ssid[32] = SSID;
@@ -239,13 +299,15 @@ void ICACHE_FLASH_ATTR user_init() {
 	struct station_config stationConf;
 	stdoutInit();
 	//Set station mode
-	wifi_set_opmode(0x1);
+	wifi_set_opmode(STATION_MODE);
 	//Set ap settings
 	os_memcpy(&stationConf.ssid, ssid, 32);
 	os_memcpy(&stationConf.password, password, 64);
 	wifi_station_set_config(&stationConf);
 
 	wifi_set_event_handler_cb(&wifi_handle_event_cb);
+
+	system_init_done_cb(user_scan);
 
 	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
 }
