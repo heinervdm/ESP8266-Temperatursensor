@@ -260,7 +260,7 @@
 
 <?php
 	if (isset($_REQUEST['edit'])) {
-		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = '.$_REQUEST['edit'].';');
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['edit']);
 		$results = $stmt->execute();
 		if ($row = $results->fetchArray()) {
@@ -297,7 +297,7 @@
 
 <?php
 	if (isset($_REQUEST['delete'])) {
-		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = '.$_REQUEST['edit'].';');
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['delete']);
 		$results = $stmt->execute();
 		if ($row = $results->fetchArray()) {
