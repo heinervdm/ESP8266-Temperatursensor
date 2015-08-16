@@ -310,7 +310,7 @@ void ICACHE_FLASH_ATTR user_init() {
 
 	wifi_set_event_handler_cb(&wifi_handle_event_cb);
 
-	system_init_done_cb(user_scan);
+// 	system_init_done_cb(user_scan);
 
 	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
 }
