@@ -298,9 +298,12 @@ void ICACHE_FLASH_ATTR user_init() {
 	char password[64] = SSID_PASSWORD;
 	struct station_config stationConf;
 	stdoutInit();
-	//Set station mode
+	// Set station mode
 	wifi_set_opmode(STATION_MODE);
-	//Set ap settings
+
+	// Don't check the mac addr
+	stationConf.bssid_set = 0; 
+	// Set ap settings
 	os_memcpy(&stationConf.ssid, ssid, 32);
 	os_memcpy(&stationConf.password, password, 64);
 	wifi_station_set_config(&stationConf);
