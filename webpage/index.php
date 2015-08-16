@@ -42,7 +42,7 @@
 				$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname) VALUES (:uid, :uid, :uid);');
 				$stmt->bindValue(':uid', $_REQUEST["uid"][$i], SQLITE3_TEXT);
 				$stmt->execute();
-				$daemonid = $db->lastInsertId();
+				$daemonid = $db->lastInsertRowID();
 			}
 
 			$stmt = $db->prepare('INSERT INTO value (daemonid, value) VALUES (:daemonid, :value);');
