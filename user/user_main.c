@@ -104,14 +104,13 @@ int32_t getTemperature(uint8_t sensor) {
 static void ICACHE_FLASH_ATTR disconnect_callback(void * arg) {
 	struct espconn *conn = (struct espconn *)arg;
 	
-	if(conn == NULL) {
-		return;
+	if(conn != NULL) {
+		if(conn->proto.tcp != NULL) {
+			os_free(conn->proto.tcp);
+		}
+		os_free(conn);
 	}
 
-	if(conn->proto.tcp != NULL) {
-		os_free(conn->proto.tcp);
-	}
-	os_free(conn);
 // 	system_deep_sleep_set_option(2);
 	system_deep_sleep(1000*1000*60*5);
 }
