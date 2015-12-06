@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!DOCTYPE eagle SYSTEM "eagle.dtd">
-<eagle version="7.2.0">
+<eagle version="7.4.0">
 <drawing>
 <settings>
 <setting alwaysvectorfont="yes"/>
@@ -9239,6 +9239,77 @@ Source: www.cypressindustries.com</description>
 </deviceset>
 </devicesets>
 </library>
+<library name="con-coax">
+<description>&lt;b&gt;Coax Connectors&lt;/b&gt;&lt;p&gt;
+Radiall  and M/A COM.&lt;p&gt;
+&lt;author&gt;Created by librarian@cadsoft.de&lt;/author&gt;</description>
+<packages>
+<package name="BU-SMA-V">
+<description>FEMALE &lt;b&gt;SMA CONNECTOR&lt;/b&gt;&lt;p&gt;
+Radiall&lt;p&gt;
+distributor RS 112-3794</description>
+<wire x1="-1.1" y1="3.2" x2="1.1" y2="3.2" width="0.2032" layer="21"/>
+<wire x1="3.2" y1="1.1" x2="3.2" y2="-1.1" width="0.2032" layer="21"/>
+<wire x1="1.1" y1="-3.2" x2="-1.1" y2="-3.2" width="0.2032" layer="21"/>
+<wire x1="-3.2" y1="-1.1" x2="-3.2" y2="1.1" width="0.2032" layer="21"/>
+<wire x1="-3.1999" y1="3.1999" x2="3.2" y2="3.2" width="0.2032" layer="51"/>
+<wire x1="3.2" y1="3.2" x2="3.1999" y2="-3.1999" width="0.2032" layer="51"/>
+<wire x1="3.1999" y1="-3.1999" x2="-3.2" y2="-3.2" width="0.2032" layer="51"/>
+<wire x1="-3.2" y1="-3.2" x2="-3.1999" y2="3.1999" width="0.2032" layer="51"/>
+<circle x="0" y="0" radius="3.1999" width="0.2032" layer="51"/>
+<circle x="0" y="0" radius="1.7" width="0.2032" layer="21"/>
+<pad name="1" x="0" y="0" drill="1.27"/>
+<pad name="2" x="-2.5499" y="2.5499" drill="1.778"/>
+<pad name="3" x="2.5499" y="2.5499" drill="1.778"/>
+<pad name="4" x="2.5499" y="-2.5499" drill="1.778"/>
+<pad name="5" x="-2.5499" y="-2.5499" drill="1.778"/>
+<text x="-2.54" y="4.445" size="1.27" layer="25">&gt;NAME</text>
+<text x="-3.175" y="-5.715" size="1.27" layer="27">&gt;VALUE</text>
+</package>
+</packages>
+<symbols>
+<symbol name="BNC-FGND">
+<wire x1="0" y1="-2.54" x2="-0.762" y2="-1.778" width="0.254" layer="94"/>
+<wire x1="0" y1="0" x2="-0.508" y2="0" width="0.1524" layer="94"/>
+<wire x1="-2.54" y1="0.508" x2="-0.762" y2="0.508" width="0.254" layer="94"/>
+<wire x1="-0.762" y1="0.508" x2="-0.508" y2="0" width="0.254" layer="94"/>
+<wire x1="-0.508" y1="0" x2="-0.762" y2="-0.508" width="0.254" layer="94"/>
+<wire x1="-0.762" y1="-0.508" x2="-2.54" y2="-0.508" width="0.254" layer="94"/>
+<wire x1="-2.54" y1="2.54" x2="0" y2="0.508" width="0.3048" layer="94" curve="-79.611142" cap="flat"/>
+<wire x1="-2.54" y1="-2.54" x2="0" y2="-0.508" width="0.3048" layer="94" curve="79.611142" cap="flat"/>
+<text x="-2.54" y="-5.08" size="1.778" layer="96">&gt;VALUE</text>
+<text x="-2.54" y="3.302" size="1.778" layer="95">&gt;NAME</text>
+<pin name="1" x="2.54" y="0" visible="off" length="short" direction="pas" rot="R180"/>
+<pin name="2" x="2.54" y="-2.54" visible="off" length="short" direction="pas" rot="R180"/>
+</symbol>
+</symbols>
+<devicesets>
+<deviceset name="BU-SMA-V" prefix="X">
+<description>FEMALE &lt;b&gt;SMA CONNECTOR&lt;/b&gt;&lt;p&gt;
+Radiall&lt;p&gt;
+distributor RS 112-3794</description>
+<gates>
+<gate name="G$1" symbol="BNC-FGND" x="-2.54" y="0"/>
+</gates>
+<devices>
+<device name="" package="BU-SMA-V">
+<connects>
+<connect gate="G$1" pin="1" pad="1"/>
+<connect gate="G$1" pin="2" pad="2 3 4 5"/>
+</connects>
+<technologies>
+<technology name="">
+<attribute name="MF" value="" constant="no"/>
+<attribute name="MPN" value="" constant="no"/>
+<attribute name="OC_FARNELL" value="unknown" constant="no"/>
+<attribute name="OC_NEWARK" value="unknown" constant="no"/>
+</technology>
+</technologies>
+</device>
+</devices>
+</deviceset>
+</devicesets>
+</library>
 </libraries>
 <attributes>
 </attributes>
@@ -9278,9 +9349,9 @@ Source: www.cypressindustries.com</description>
 <part name="P+10" library="supply1" deviceset="VCC" device=""/>
 <part name="P+1" library="supply1" deviceset="VCC" device=""/>
 <part name="FRAME1" library="frames" deviceset="A4L-LOC" device=""/>
-<part name="TP1" library="testpad" deviceset="TP" device="PAD1-13"/>
-<part name="TP2" library="testpad" deviceset="TP" device="PAD1-13"/>
-<part name="TP3" library="testpad" deviceset="TP" device="PAD1-13"/>
+<part name="IO14" library="testpad" deviceset="TP" device="PAD1-13"/>
+<part name="IO12" library="testpad" deviceset="TP" device="PAD1-13"/>
+<part name="IO13" library="testpad" deviceset="TP" device="PAD1-13"/>
 <part name="T1" library="zetex" deviceset="NMOSSOT23" device=""/>
 <part name="R1" library="resistor" deviceset="R-EU_" device="M0805" value="10k"/>
 <part name="R3" library="resistor" deviceset="R-EU_" device="M0805" value="10k"/>
@@ -9308,6 +9379,12 @@ Source: www.cypressindustries.com</description>
 <part name="SUPPLY3" library="supply2" deviceset="V+" device=""/>
 <part name="R9" library="resistor" deviceset="R-EU_" device="M0805" value="4K7"/>
 <part name="C4" library="resistor" deviceset="C-EU" device="C1206" value="100u"/>
+<part name="VCC" library="testpad" deviceset="TP" device="PAD1-13"/>
+<part name="GND" library="testpad" deviceset="TP" device="PAD1-13"/>
+<part name="P+14" library="supply1" deviceset="VCC" device=""/>
+<part name="GND15" library="supply1" deviceset="GND" device=""/>
+<part name="X2" library="con-coax" deviceset="BU-SMA-V" device=""/>
+<part name="GND16" library="supply1" deviceset="GND" device=""/>
 </parts>
 <sheets>
 <sheet>
@@ -9343,9 +9420,9 @@ Source: www.cypressindustries.com</description>
 <instance part="P+10" gate="VCC" x="73.66" y="116.84" rot="R90"/>
 <instance part="P+1" gate="VCC" x="149.86" y="127" rot="R270"/>
 <instance part="FRAME1" gate="G$1" x="-83.82" y="-27.94"/>
-<instance part="TP1" gate="G$1" x="88.9" y="127" rot="R90"/>
-<instance part="TP2" gate="G$1" x="83.82" y="124.46" rot="R90"/>
-<instance part="TP3" gate="G$1" x="78.74" y="121.92" rot="R90"/>
+<instance part="IO14" gate="G$1" x="88.9" y="127" rot="R90"/>
+<instance part="IO12" gate="G$1" x="83.82" y="124.46" rot="R90"/>
+<instance part="IO13" gate="G$1" x="78.74" y="121.92" rot="R90"/>
 <instance part="T1" gate="A" x="17.78" y="33.02" rot="R270"/>
 <instance part="R1" gate="G$1" x="10.16" y="38.1" rot="R90"/>
 <instance part="R3" gate="G$1" x="25.4" y="38.1" rot="R90"/>
@@ -9373,6 +9450,12 @@ Source: www.cypressindustries.com</description>
 <instance part="SUPPLY3" gate="1" x="-7.62" y="119.38" rot="R180"/>
 <instance part="R9" gate="G$1" x="142.24" y="124.46"/>
 <instance part="C4" gate="G$1" x="83.82" y="78.74" rot="R270"/>
+<instance part="VCC" gate="G$1" x="68.58" y="142.24"/>
+<instance part="GND" gate="G$1" x="76.2" y="142.24"/>
+<instance part="P+14" gate="VCC" x="66.04" y="137.16" rot="R90"/>
+<instance part="GND15" gate="1" x="76.2" y="134.62"/>
+<instance part="X2" gate="G$1" x="129.54" y="142.24" rot="R270"/>
+<instance part="GND16" gate="1" x="127" y="137.16"/>
 </instances>
 <busses>
 </busses>
@@ -9434,6 +9517,11 @@ Source: www.cypressindustries.com</description>
 <pinref part="U2" gate="A" pin="VBAT"/>
 <pinref part="P+13" gate="VCC" pin="VCC"/>
 <wire x1="10.16" y1="109.22" x2="10.16" y2="104.14" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="VCC" gate="G$1" pin="TP"/>
+<pinref part="P+14" gate="VCC" pin="VCC"/>
+<wire x1="68.58" y1="137.16" x2="68.58" y2="139.7" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="GND" class="0">
@@ -9509,6 +9597,15 @@ Source: www.cypressindustries.com</description>
 <segment>
 <pinref part="X1" gate="G$1" pin="5"/>
 <pinref part="GND14" gate="1" pin="GND"/>
+</segment>
+<segment>
+<pinref part="GND" gate="G$1" pin="TP"/>
+<pinref part="GND15" gate="1" pin="GND"/>
+<wire x1="76.2" y1="137.16" x2="76.2" y2="139.7" width="0.1524" layer="91"/>
+</segment>
+<segment>
+<pinref part="X2" gate="G$1" pin="2"/>
+<pinref part="GND16" gate="1" pin="GND"/>
 </segment>
 </net>
 <net name="RX" class="0">
@@ -9600,13 +9697,13 @@ Source: www.cypressindustries.com</description>
 <net name="N$2" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="GPIO13"/>
-<pinref part="TP3" gate="G$1" pin="TP"/>
+<pinref part="IO13" gate="G$1" pin="TP"/>
 <wire x1="96.52" y1="121.92" x2="81.28" y2="121.92" width="0.1524" layer="91"/>
 </segment>
 </net>
 <net name="N$3" class="0">
 <segment>
-<pinref part="TP2" gate="G$1" pin="TP"/>
+<pinref part="IO12" gate="G$1" pin="TP"/>
 <pinref part="U1" gate="G$1" pin="GPIO12"/>
 <wire x1="86.36" y1="124.46" x2="96.52" y2="124.46" width="0.1524" layer="91"/>
 </segment>
@@ -9614,7 +9711,7 @@ Source: www.cypressindustries.com</description>
 <net name="N$4" class="0">
 <segment>
 <pinref part="U1" gate="G$1" pin="GPIO14"/>
-<pinref part="TP1" gate="G$1" pin="TP"/>
+<pinref part="IO14" gate="G$1" pin="TP"/>
 <wire x1="96.52" y1="127" x2="91.44" y2="127" width="0.1524" layer="91"/>
 </segment>
 </net>
@@ -9695,6 +9792,13 @@ Source: www.cypressindustries.com</description>
 <segment>
 <pinref part="X1" gate="G$1" pin="1"/>
 <pinref part="SUPPLY3" gate="1" pin="V+"/>
+</segment>
+</net>
+<net name="N$7" class="0">
+<segment>
+<pinref part="X2" gate="G$1" pin="1"/>
+<pinref part="U1" gate="G$1" pin="ANT"/>
+<wire x1="129.54" y1="139.7" x2="129.54" y2="129.54" width="0.1524" layer="91"/>
 </segment>
 </net>
 </nets>
