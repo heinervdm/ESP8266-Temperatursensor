@@ -17,3 +17,7 @@ Makefile & user_main structure: https://github.com/esp8266/source-code-examples
 ESP8266 eagle footprint: https://github.com/wvanvlaenderen/ESP8266-Eagle_Library
 
 Javascript plotting: https://github.com/dima117/Chart.Scatter
+
+BMP180 readout: https://github.com/reaper7/esp8266_i2c_bmp180
+
+DHT11/22 readout: https://github.com/mathew-hall/esp8266-dht
