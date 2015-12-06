@@ -4,13 +4,24 @@
 #include "os_type.h"
 #include "user_config.h"
 #include "user_interface.h"
-#include "ds18x20.h"
-#include "onewire.h"
 #include "stdout.h"
 #include "espmissingincludes.h"
 #include "espconn.h"
 #include "ip_addr.h"
 #include "mem.h"
+
+#ifdef READ_1W
+#include "ds18x20.h"
+#include "onewire.h"
+#endif
+
+#ifdef READ_BMP
+#include "i2c_bmp180.h"
+#endif
+
+#ifdef READ_DHT
+#include "dht.h"
+#endif
 
 #define user_procTaskPrio        0
 #define user_procTaskQueueLen    1
@@ -133,9 +144,16 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	espconn_regist_recvcb(conn, receive_callback);
 	espconn_regist_sentcb(conn, sent_callback);
 	os_delay_us(1);
-// 	struct sensor_reading *r = readDS18B20();
+
+	char macstr[2*6+2];
+	uint8_t mac[6];
+	wifi_get_macaddr(STATION_IF,&mac[0]);
+	getHexStr(&macstr[0],&mac[0],6);
+	os_printf("Got MAC addr: %s\n", macstr);
+
+	char buf1[(MAXSENSORS+5)*50];
+#ifdef READ_1W
 	uint8_t n = search_sensors();
-	char buf1[n*50];
 	char buf2[50];
 	char uid[OW_ROMCODE_SIZE*2+2];
 	for (uint8_t i = 0; i < n;i++) {
@@ -145,11 +163,37 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 	}
-	char macstr[2*6+2];
-	uint8_t mac[6];
-	wifi_get_macaddr(STATION_IF,&mac[0]);
-	getHexStr(&macstr[0],&mac[0],6);
-	os_printf("Got MAC addr: %s\n", macstr);
+#endif
+#ifdef READ_BMP
+bool ret = BMP180_Init();
+if (ret) {
+	char buf2[50];
+	uint32_t pressure = BMP180_GetVal(GET_BMP_REAL_PRESSURE);
+	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",pressure,macstr,"/pres");
+	os_strcat(buf1, buf2);
+	os_delay_us(1);
+	uint32_t temperature = BMP180_GetVal(GET_BMP_TEMPERATURE);
+	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",temperature,macstr,"/prestemp");
+	os_strcat(buf1, buf2);
+	os_delay_us(1);
+	uint32_t relpressure = BMP180_GetVal(GET_BMP_RELATIVE_PRESSURE);
+	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",relpressure,macstr,"/presrel");
+	os_strcat(buf1, buf2);
+	os_delay_us(1);
+}
+#endif
+#ifdef READ_DHT
+	struct sensor_reading* result = readDHT(1);
+	if (result->success == 1) {
+		char buf2[50];
+		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->temperature*100),macstr,"/humiditytemp");
+		os_strcat(buf1, buf2);
+		os_delay_us(1);
+		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->humidity*100),macstr,"/humidity");
+		os_strcat(buf1, buf2);
+		os_delay_us(1);
+	}
+#endif
 	float v = readvdd33()/1024.;
 	os_printf("Got power reading: %d.%02d\n", (int)v, (int)((v-(int)v)*100));
 	if (v < 3) {
@@ -159,7 +203,7 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	}
 	os_delay_us(1);
 
-	char buf[200];
+	char buf[400+MAXSENSORS*50];
 	int len = os_sprintf(buf,
 						"GET /index.php?uid[]=%s&value[]=%d.%02d%s HTTP/1.1\r\n"
 						"Host: " HOSTNAME ":%d\r\n"
@@ -297,6 +341,9 @@ void ICACHE_FLASH_ATTR user_init() {
 	char password[64] = SSID_PASSWORD;
 	struct station_config stationConf;
 	stdoutInit();
+#ifdef READ_DHT
+	DHTInit(DHT_TYPE, 30000);
+#endif
 	// Set station mode
 	wifi_set_opmode(STATION_MODE);
 

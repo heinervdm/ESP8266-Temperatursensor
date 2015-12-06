@@ -5,13 +5,12 @@
 extern "C" {
 #endif
 
+#include "user_config.h"
 #include "ets_sys.h"
 
 /*******************************************/
 /* Hardware connection                     */
 /*******************************************/
-
-#define OW_PIN  2
 
 // Recovery time (T_Rec) minimum 1usec - increase for long lines
 // 5 usecs is a value give in some Maxim AppNotes
