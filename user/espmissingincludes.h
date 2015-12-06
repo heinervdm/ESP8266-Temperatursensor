@@ -40,6 +40,9 @@ int rand(void);
 void ets_bzero(void *s, size_t n);
 void ets_delay_us(int ms);
 uint16_t readvdd33(void);
+void ets_intr_lock(void);
+void wdt_feed(void);
+void ets_intr_unlock(void);
 
 //Hack: this is defined in SDK 1.4.0 and undefined in 1.3.0. It's only used for this, the symbol itself
 //has no meaning here.
