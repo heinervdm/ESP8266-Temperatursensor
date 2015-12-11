@@ -5,7 +5,7 @@
 
 #include "crc8.h"
 
-uint8_t crc8( uint8_t *data, uint16_t number_of_bytes_in_data )
+uint8_t ICACHE_FLASH_ATTR crc8( uint8_t *data, uint16_t number_of_bytes_in_data )
 {
 	uint8_t  crc;
 	uint16_t loop_count;

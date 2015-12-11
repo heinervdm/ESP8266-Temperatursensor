@@ -11,13 +11,13 @@
 #define OW_PIN  2
 
 // Read DHT sensor?
-#define READ_DHT 0
+// #define READ_DHT 1
 #define DHT_PIN 4
 #define DHT_TYPE SENSOR_DHT11
 // #define DHT_TYPE SENSOR_DHT22
 
 // Read BMP180?
-#define READ_BMP 0
+// #define READ_BMP 1
 #define I2C_SDA_MUX PERIPHS_IO_MUX_MTDI_U
 #define I2C_SDA_FUNC FUNC_GPIO12
 #define I2C_SDA_PIN 12

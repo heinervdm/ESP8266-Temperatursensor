@@ -35,7 +35,7 @@ unsigned int default_certificate_len = 0;
 unsigned char *default_private_key;
 unsigned int default_private_key_len = 0;
 
-void getHexStr(char *buf, uint8_t *arr, uint8_t size) {
+void ICACHE_FLASH_ATTR getHexStr(char *buf, uint8_t *arr, uint8_t size) {
 	uint8_t i=0;
 	for (;i<size;i++) {
 		uint8_t b = (arr[i] >> 4) & 0x0F;
@@ -58,7 +58,7 @@ void getHexStr(char *buf, uint8_t *arr, uint8_t size) {
 	buf[size*2] = '\0';
 }
 
-static uint8_t search_sensors(void)
+static uint8_t ICACHE_FLASH_ATTR search_sensors(void)
 {
 	uint8_t i;
 	uint8_t id[OW_ROMCODE_SIZE];
@@ -93,7 +93,7 @@ static uint8_t search_sensors(void)
 	return nSensors;
 }
 
-int32_t getTemperature(uint8_t sensor) {
+int32_t ICACHE_FLASH_ATTR getTemperature(uint8_t sensor) {
 	int32_t temp;
 
 	if ( DS18X20_start_meas( DS18X20_POWER_EXTERN, &gSensorIDs[sensor][0] ) == DS18X20_OK ) {
@@ -194,7 +194,9 @@ if (ret) {
 		os_delay_us(1);
 	}
 #endif
-	float v = readvdd33()/1024.;
+	float v = readvdd33();
+// 	float v = system_get_vdd33();
+	v /= 1024.;
 	os_printf("Got power reading: %d.%02d\n", (int)v, (int)((v-(int)v)*100));
 	if (v < 3) {
 		// I don't know if i can really shut it off this way but it's the best way i've found.
@@ -214,7 +216,7 @@ if (ret) {
 	espconn_sent(conn, (uint8_t *)buf, len);
 }
 
-static void some_timerfunc(void *arg) {
+static void ICACHE_FLASH_ATTR some_timerfunc(void *arg) {
 	ip_addr_t addr;
 	IPADDR(&addr);
 
@@ -238,7 +240,7 @@ static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events) {
 	os_delay_us(10);
 }
 
-void wifi_handle_event_cb(System_Event_t *evt) {
+void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 	os_printf("event %x\n", evt->event);
 	switch (evt->event) {
 		case EVENT_STAMODE_CONNECTED:

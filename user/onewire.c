@@ -25,23 +25,23 @@ ported to esp8266 by Thomas Zimmermann (bugs(at)vdm-design.de)
 #define OW_OUT_HIGH() ( GPIO_OUTPUT_SET(OW_PIN,1) )
 #define OW_DIR_IN()   ( GPIO_DIS_OUTPUT(OW_PIN) )
 
-uint8_t ow_input_pin_state()
+uint8_t ICACHE_FLASH_ATTR ow_input_pin_state() 
 {
 	return OW_GET_IN();
 }
 
-void ow_parasite_enable(void)
+void ICACHE_FLASH_ATTR ow_parasite_enable(void) 
 {
 	OW_OUT_HIGH();
 }
 
-void ow_parasite_disable(void)
+void ICACHE_FLASH_ATTR ow_parasite_disable(void) 
 {
 	OW_DIR_IN();
 }
 
 
-uint8_t ow_reset(void)
+uint8_t ICACHE_FLASH_ATTR ow_reset(void) 
 {
 	uint8_t err;
 	
@@ -73,7 +73,7 @@ uint8_t ow_reset(void)
    to achive a 15uS overall delay 
    Setting/clearing a bit in I/O Register needs 1 cyle in OW_ONE_BUS
    but around 14 cyles in configureable bus (us-Delay is 4 cyles per uS) */
-static uint8_t ow_bit_io_intern_t( uint8_t b, uint8_t with_parasite_enable )
+static uint8_t ICACHE_FLASH_ATTR ow_bit_io_intern_t( uint8_t b, uint8_t with_parasite_enable ) 
 {
 	OW_OUT_LOW();
 	os_delay_us(2);    // T_INT > 1usec accoding to timing-diagramm
@@ -103,12 +103,12 @@ static uint8_t ow_bit_io_intern_t( uint8_t b, uint8_t with_parasite_enable )
 	return b;
 }
 
-uint8_t ow_bit_io( uint8_t b )
+uint8_t ICACHE_FLASH_ATTR ow_bit_io( uint8_t b ) 
 {
 	return ow_bit_io_intern_t( b & 1, 0 );
 }
 
-uint8_t ow_byte_wr( uint8_t b )
+uint8_t ICACHE_FLASH_ATTR ow_byte_wr( uint8_t b ) 
 {
 	uint8_t i = 8, j;
 	
@@ -123,7 +123,7 @@ uint8_t ow_byte_wr( uint8_t b )
 	return b;
 }
 
-uint8_t ow_byte_wr_with_parasite_enable( uint8_t b )
+uint8_t ICACHE_FLASH_ATTR ow_byte_wr_with_parasite_enable( uint8_t b ) 
 {
 	uint8_t i = 8, j;
 	
@@ -143,7 +143,7 @@ uint8_t ow_byte_wr_with_parasite_enable( uint8_t b )
 }
 
 
-uint8_t ow_byte_rd( void )
+uint8_t ICACHE_FLASH_ATTR ow_byte_rd( void ) 
 {
 	// read by sending only "1"s, so bus gets released
 	// after the init low-pulse in every slot
@@ -151,7 +151,7 @@ uint8_t ow_byte_rd( void )
 }
 
 
-uint8_t ow_rom_search( uint8_t diff, uint8_t *id )
+uint8_t ICACHE_FLASH_ATTR ow_rom_search( uint8_t diff, uint8_t *id ) 
 {
 	uint8_t i, j, next_diff;
 	uint8_t b;
@@ -200,7 +200,7 @@ uint8_t ow_rom_search( uint8_t diff, uint8_t *id )
 }
 
 
-static void ow_command_intern_t( uint8_t command, uint8_t *id, uint8_t with_parasite_enable )
+static void ICACHE_FLASH_ATTR ow_command_intern_t( uint8_t command, uint8_t *id, uint8_t with_parasite_enable ) 
 {
 	uint8_t i;
 
@@ -225,12 +225,12 @@ static void ow_command_intern_t( uint8_t command, uint8_t *id, uint8_t with_para
 	}
 }
 
-void ow_command( uint8_t command, uint8_t *id )
+void ICACHE_FLASH_ATTR ow_command( uint8_t command, uint8_t *id ) 
 {
 	ow_command_intern_t( command, id, 0);
 }
 
-void ow_command_with_parasite_enable( uint8_t command, uint8_t *id )
+void ICACHE_FLASH_ATTR ow_command_with_parasite_enable( uint8_t command, uint8_t *id ) 
 {
 	ow_command_intern_t( command, id, 1 );
 }

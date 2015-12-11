@@ -43,7 +43,7 @@ changelog:
 
 static int16_t DS18X20_rawo_decicelsius( uint8_t fc, uint8_t sp[] );
 
-char* itoa(int i, char b[])  // Convert Integer to ASCII!!
+char*  ICACHE_FLASH_ATTR itoa(int i, char b[])   // Convert Integer to ASCII!!
 {
 	char const digit[] = "0123456789";
 	char* p = b;
@@ -66,7 +66,7 @@ char* itoa(int i, char b[])  // Convert Integer to ASCII!!
 	return b;
 }
 
-void DS18X20_show_id_uart( uint8_t *id, size_t n )
+void ICACHE_FLASH_ATTR DS18X20_show_id_uart( uint8_t *id, size_t n ) 
 {
 	size_t i;
 
@@ -89,7 +89,7 @@ void DS18X20_show_id_uart( uint8_t *id, size_t n )
 		os_printf( " CRC O.K. " );
 }
 
-static void show_sp_uart( uint8_t *sp, size_t n )
+static void ICACHE_FLASH_ATTR show_sp_uart( uint8_t *sp, size_t n ) 
 {
 	size_t i;
 
@@ -112,8 +112,8 @@ static void show_sp_uart( uint8_t *sp, size_t n )
    - subzero =0 positiv / 1 negativ
    always returns  DS18X20_OK
 */
-static uint8_t DS18X20_measo_cel( uint8_t fc, uint8_t *sp, 
-	uint8_t* subzero, uint8_t* cel, uint8_t* cel_frac_bits)
+static uint8_t ICACHE_FLASH_ATTR DS18X20_measo_cel( uint8_t fc, uint8_t *sp, 
+	uint8_t* subzero, uint8_t* cel, uint8_t* cel_frac_bits) 
 {
 	uint16_t meas;
 	uint8_t  i;
@@ -158,8 +158,8 @@ static uint8_t DS18X20_measo_cel( uint8_t fc, uint8_t *sp,
 	return DS18X20_OK;
 }
 
-static void DS18X20_uart_putemp(const uint8_t subzero, 
-	const uint8_t cel, const uint8_t cel_frac_bits)
+static void ICACHE_FLASH_ATTR DS18X20_uart_putemp(const uint8_t subzero, 
+	const uint8_t cel, const uint8_t cel_frac_bits) 
 {
 	char buffer[sizeof(int)*8+1];
 	size_t i;
@@ -176,7 +176,7 @@ static void DS18X20_uart_putemp(const uint8_t subzero,
 }
 
 /* verbose output rom-search follows read-scratchpad in one loop */
-uint8_t DS18X20_read_meas_all_verbose( void )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_meas_all_verbose( void ) 
 {
 	uint8_t id[OW_ROMCODE_SIZE], sp[DS18X20_SP_SIZE], diff;
 	uint8_t i;
@@ -288,7 +288,7 @@ uint8_t DS18X20_read_meas_all_verbose( void )
    input/ouput: diff is the result of the last rom-search
                 *diff = OW_SEARCH_FIRST for first call
    output: id is the rom-code of the sensor found */
-uint8_t DS18X20_find_sensor( uint8_t *diff, uint8_t id[] )
+uint8_t ICACHE_FLASH_ATTR DS18X20_find_sensor( uint8_t *diff, uint8_t id[] ) 
 {
 	uint8_t go;
 	uint8_t ret;
@@ -315,7 +315,7 @@ uint8_t DS18X20_find_sensor( uint8_t *diff, uint8_t id[] )
 /* get power status of DS18x20 
    input:   id = rom_code 
    returns: DS18X20_POWER_EXTERN or DS18X20_POWER_PARASITE */
-uint8_t DS18X20_get_power_status( uint8_t id[] )
+uint8_t ICACHE_FLASH_ATTR DS18X20_get_power_status( uint8_t id[] ) 
 {
 	uint8_t pstat;
 
@@ -328,7 +328,7 @@ uint8_t DS18X20_get_power_status( uint8_t id[] )
 
 /* start measurement (CONVERT_T) for all sensors if input id==NULL 
    or for single sensor where id is the rom-code */
-uint8_t DS18X20_start_meas( uint8_t with_power_extern, uint8_t id[])
+uint8_t ICACHE_FLASH_ATTR DS18X20_start_meas( uint8_t with_power_extern, uint8_t id[]) 
 {
 	uint8_t ret;
 
@@ -352,12 +352,12 @@ uint8_t DS18X20_start_meas( uint8_t with_power_extern, uint8_t id[])
 
 // returns 1 if conversion is in progress, 0 if finished
 // not available when parasite powered.
-uint8_t DS18X20_conversion_in_progress(void)
+uint8_t ICACHE_FLASH_ATTR DS18X20_conversion_in_progress(void) 
 {
 	return ow_bit_io( 1 ) ? DS18X20_CONVERSION_DONE : DS18X20_CONVERTING;
 }
 
-static uint8_t read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n )
+static uint8_t ICACHE_FLASH_ATTR read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n ) 
 {
 	uint8_t i;
 	uint8_t ret;
@@ -379,7 +379,7 @@ static uint8_t read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n )
 #if DS18X20_DECICELSIUS
 
 /* convert scratchpad data to physical value in unit decicelsius */
-static int16_t DS18X20_rawo_decicelsius( uint8_t familycode, uint8_t sp[] )
+static int16_t ICACHE_FLASH_ATTR DS18X20_rawo_decicelsius( uint8_t familycode, uint8_t sp[] ) 
 {
 	uint16_t measure;
 	uint8_t  negative;
@@ -452,7 +452,7 @@ static int16_t DS18X20_rawo_decicelsius( uint8_t familycode, uint8_t sp[] )
    by code from Chris Takahashi for the MSP430 libc, BSD-license 
    modifications mthomas: variable-types, fixed radix 10, use div(), 
    insert decimal-point */
-uint8_t DS18X20_format_from_decicelsius( int16_t decicelsius, char str[], uint8_t n)
+uint8_t ICACHE_FLASH_ATTR DS18X20_format_from_decicelsius( int16_t decicelsius, char str[], uint8_t n) 
 {
 	uint8_t sign = 0;
 	char temp[7];
@@ -501,7 +501,7 @@ uint8_t DS18X20_format_from_decicelsius( int16_t decicelsius, char str[], uint8_
 /* reads temperature (scratchpad) of sensor with rom-code id
    output: decicelsius 
    returns DS18X20_OK on success */
-uint8_t DS18X20_read_decicelsius( uint8_t id[], int16_t *decicelsius )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_decicelsius( uint8_t id[], int16_t *decicelsius ) 
 {
 	uint8_t sp[DS18X20_SP_SIZE];
 	uint8_t ret;
@@ -517,7 +517,7 @@ uint8_t DS18X20_read_decicelsius( uint8_t id[], int16_t *decicelsius )
 /* reads temperature (scratchpad) of sensor without id (single sensor)
    output: decicelsius 
    returns DS18X20_OK on success */
-uint8_t DS18X20_read_decicelsius_single( uint8_t familycode, int16_t *decicelsius )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_decicelsius_single( uint8_t familycode, int16_t *decicelsius ) 
 {
 	uint8_t sp[DS18X20_SP_SIZE];
 	uint8_t ret;
@@ -534,7 +534,7 @@ uint8_t DS18X20_read_decicelsius_single( uint8_t familycode, int16_t *decicelsiu
 
 #if DS18X20_MAX_RESOLUTION
 
-static int32_t DS18X20_rawo_maxres( uint8_t familycode, uint8_t sp[] )
+static int32_t ICACHE_FLASH_ATTR DS18X20_rawo_maxres( uint8_t familycode, uint8_t sp[] ) 
 {
 	uint16_t measure;
 	uint8_t  negative;
@@ -590,7 +590,7 @@ static int32_t DS18X20_rawo_maxres( uint8_t familycode, uint8_t sp[] )
 	return temperaturevalue;
 }
 
-uint8_t DS18X20_read_maxres( uint8_t id[], int32_t *temperaturevalue )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_maxres( uint8_t id[], int32_t *temperaturevalue ) 
 {
 	uint8_t sp[DS18X20_SP_SIZE];
 	uint8_t ret;
@@ -603,7 +603,7 @@ uint8_t DS18X20_read_maxres( uint8_t id[], int32_t *temperaturevalue )
 	return ret;
 }
 
-uint8_t DS18X20_read_maxres_single( uint8_t familycode, int32_t *temperaturevalue )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_maxres_single( uint8_t familycode, int32_t *temperaturevalue ) 
 {
 	uint8_t sp[DS18X20_SP_SIZE];
 	uint8_t ret;
@@ -616,7 +616,7 @@ uint8_t DS18X20_read_maxres_single( uint8_t familycode, int32_t *temperaturevalu
 
 }
 
-uint8_t DS18X20_format_from_maxres( int32_t temperaturevalue, char str[], uint8_t n)
+uint8_t ICACHE_FLASH_ATTR DS18X20_format_from_maxres( int32_t temperaturevalue, char str[], uint8_t n) 
 {
 	uint8_t sign = 0;
 	char temp[10];
@@ -669,8 +669,8 @@ uint8_t DS18X20_format_from_maxres( int32_t temperaturevalue, char str[], uint8_
 
 #if DS18X20_EEPROMSUPPORT
 
-uint8_t DS18X20_write_scratchpad( uint8_t id[], 
-	uint8_t th, uint8_t tl, uint8_t conf)
+uint8_t ICACHE_FLASH_ATTR DS18X20_write_scratchpad( uint8_t id[], 
+	uint8_t th, uint8_t tl, uint8_t conf) 
 {
 	uint8_t ret;
 
@@ -692,7 +692,7 @@ uint8_t DS18X20_write_scratchpad( uint8_t id[],
 	return ret;
 }
 
-uint8_t DS18X20_read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n )
+uint8_t ICACHE_FLASH_ATTR DS18X20_read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n ) 
 {
 	uint8_t ret;
 
@@ -708,8 +708,8 @@ uint8_t DS18X20_read_scratchpad( uint8_t id[], uint8_t sp[], uint8_t n )
 	return ret;
 }
 
-uint8_t DS18X20_scratchpado_eeprom( uint8_t with_power_extern, 
-	uint8_t id[] )
+uint8_t ICACHE_FLASH_ATTR DS18X20_scratchpado_eeprom( uint8_t with_power_extern, 
+	uint8_t id[] ) 
 {
 	uint8_t ret;
 
@@ -735,7 +735,7 @@ uint8_t DS18X20_scratchpado_eeprom( uint8_t with_power_extern,
 	return ret;
 }
 
-uint8_t DS18X20_eepromo_scratchpad( uint8_t id[] )
+uint8_t ICACHE_FLASH_ATTR DS18X20_eepromo_scratchpad( uint8_t id[] )
 {
 	uint8_t ret;
 	uint8_t retry_count=255;
