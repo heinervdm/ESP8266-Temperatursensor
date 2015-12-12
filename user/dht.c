@@ -50,10 +50,6 @@ static inline float scale_temperature(int *data) {
   }
 }
 
-static inline void delay_ms(int sleep) { 
-    os_delay_us(1000 * sleep); 
-}
-
 static struct sensor_reading reading = {
     .source = "DHT11", .success = 0
 };
@@ -86,7 +82,7 @@ LICENSE:
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 // SOFTWARE.
 */
-static  void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
+static void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
   int counter = 0;
   int laststate = 1;
   int i = 0;
@@ -94,7 +90,7 @@ static  void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
   // int bitidx = 0;
   // int bits[250];
 
-  int data[100];
+  int data[5];
 
   data[0] = data[1] = data[2] = data[3] = data[4] = 0;
 
@@ -103,11 +99,11 @@ static  void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
   wdt_feed();
   // Wake up device, 250ms of high
   GPIO_OUTPUT_SET(DHT_PIN, 1);
-  delay_ms(20);
+  os_delay_us(1000*20UL);
 
   // Hold low for 20ms
   GPIO_OUTPUT_SET(DHT_PIN, 0);
-  delay_ms(20);
+  os_delay_us(1000*20UL);
 
   // High for 40ms
   // GPIO_OUTPUT_SET(2, 1);
@@ -150,10 +146,10 @@ static  void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
       // shove each bit into the storage bytes
       data[bits_in / 8] <<= 1;
       if (counter > BREAKTIME) {
-        //os_printf("1");
+        os_printf("1");
         data[bits_in / 8] |= 1;
       } else {
-        //os_printf("0");
+        os_printf("0");
       }
       bits_in++;
     }
@@ -163,17 +159,17 @@ static  void ICACHE_FLASH_ATTR pollDHTCb(void * arg){
   ets_intr_unlock();
 
   if (bits_in < 40) {
-    os_printf("Got too few bits: %d should be at least 40", bits_in);
+    os_printf("Got too few bits: %d should be at least 40\n", bits_in);
     goto fail;
   }
   
 
   int checksum = (data[0] + data[1] + data[2] + data[3]) & 0xFF;
   
-  os_printf("DHT: %02x %02x %02x %02x [%02x] CS: %02x", data[0], data[1],data[2],data[3],data[4],checksum);
+  os_printf("DHT: %02x %02x %02x %02x [%02x] CS: %02x\n", data[0], data[1],data[2],data[3],data[4],checksum);
   
   if (data[4] != checksum) {
-    os_printf("Checksum was incorrect after %d bits. Expected %d but got %d",
+    os_printf("Checksum was incorrect after %d bits. Expected %d but got %d\n",
               bits_in, data[4], checksum);
     goto fail;
   }
@@ -201,13 +197,14 @@ struct sensor_reading *ICACHE_FLASH_ATTR readDHT(int force) {
 void DHTInit(enum sensor_type sensor_type, uint32_t polltime) {
   SENSOR = sensor_type;
   // Set GPIO2 to output mode for DHT22
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
-  PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0);
+//   PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO2_U, FUNC_GPIO2);
+//   PIN_FUNC_SELECT(PERIPHS_IO_MUX_GPIO0_U, FUNC_GPIO0);
   //PIN_PULLUP_EN(PERIPHS_IO_MUX_GPIO2_U);
-  
-  os_printf("DHT Setup for type %d, poll interval of %d\n", sensor_type, (int)polltime);
-  
-  static ETSTimer dhtTimer;
-  os_timer_setfn(&dhtTimer, pollDHTCb, NULL);
-  os_timer_arm(&dhtTimer, polltime, 1);
+  PIN_FUNC_SELECT(DHT_MUX, DHT_FUNC);
+//   os_printf("DHT Setup for type %d, poll interval of %d\n", sensor_type, (int)polltime);
+  if (polltime > 0) {
+    static ETSTimer dhtTimer;
+    os_timer_setfn(&dhtTimer, pollDHTCb, NULL);
+    os_timer_arm(&dhtTimer, polltime, 1);
+  }
 }

@@ -185,13 +185,14 @@ if (ret == 1) {
 }
 #endif
 #ifdef READ_DHT
+	DHTInit(DHT_TYPE,0);
 	struct sensor_reading* result = readDHT(1);
 	if (result->success == 1) {
 		char buf2[50];
-		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->temperature*100),macstr,"/humiditytemp");
+		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->temperature),macstr,"/humiditytemp");
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
-		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->humidity*100),macstr,"/humidity");
+		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->humidity),macstr,"/humidity");
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 	}
