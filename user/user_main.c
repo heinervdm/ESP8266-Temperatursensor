@@ -10,12 +10,11 @@
 #include "ip_addr.h"
 #include "mem.h"
 
-#ifdef READ_1W
 #include "ds18x20.h"
 #include "onewire.h"
-#endif
 
 #ifdef READ_BMP
+#include "i2c.h"
 #include "i2c_bmp180.h"
 #endif
 
@@ -165,21 +164,24 @@ static void ICACHE_FLASH_ATTR connect_callback(void * arg) {
 	}
 #endif
 #ifdef READ_BMP
+i2c_init();
 bool ret = BMP180_Init();
-if (ret) {
+if (ret == 1) {
 	char buf2[50];
 	uint32_t pressure = BMP180_GetVal(GET_BMP_REAL_PRESSURE);
-	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",pressure,macstr,"/pres");
+	os_sprintf(buf2,"&value[]=%d.%02d&uid[]=%s%s",pressure/100,pressure%100,macstr,"/pres");
 	os_strcat(buf1, buf2);
 	os_delay_us(1);
 	uint32_t temperature = BMP180_GetVal(GET_BMP_TEMPERATURE);
-	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",temperature,macstr,"/prestemp");
+	os_sprintf(buf2,"&value[]=%d.%01d&uid[]=%s%s",temperature/10,temperature%10,macstr,"/prestemp");
 	os_strcat(buf1, buf2);
 	os_delay_us(1);
 	uint32_t relpressure = BMP180_GetVal(GET_BMP_RELATIVE_PRESSURE);
-	os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",relpressure,macstr,"/presrel");
+	os_sprintf(buf2,"&value[]=%d.%02d&uid[]=%s%s",relpressure/100,relpressure%100,macstr,"/presrel");
 	os_strcat(buf1, buf2);
 	os_delay_us(1);
+} else {
+	os_printf("BMP180: init couldn't read version register.\n");
 }
 #endif
 #ifdef READ_DHT
@@ -343,9 +345,7 @@ void ICACHE_FLASH_ATTR user_init() {
 	char password[64] = SSID_PASSWORD;
 	struct station_config stationConf;
 	stdoutInit();
-#ifdef READ_DHT
-	DHTInit(DHT_TYPE, 30000);
-#endif
+
 	// Set station mode
 	wifi_set_opmode(STATION_MODE);
 
