@@ -15,55 +15,55 @@ BMP180_readRegister16(uint8_t reg) {
   i2c_start(); 
   i2c_writeByte(BMP180_ADDRESS); 
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack1..\n return \n");
     i2c_stop();
     return(0);
   }
   i2c_writeByte(reg);
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack2..\n return \n");
     i2c_stop();
     return(0);
   }
-  i2c_start(); 
-  i2c_writeByte(BMP180_ADDRESS+1);  
+  i2c_start();
+  i2c_writeByte(BMP180_ADDRESS+1);
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack3..\n return \n");
     i2c_stop();
     return(0);
   }
-  uint8_t msb = i2c_readByte();                 
-  i2c_send_ack(1);                       		
-  uint8_t lsb = i2c_readByte();     
-  i2c_send_ack(0);                       		
-  i2c_stop();                           	
+  uint8_t msb = i2c_readByte();              
+  i2c_send_ack(1);
+  uint8_t lsb = i2c_readByte();
+  i2c_send_ack(0);
+  i2c_stop();
   int16_t res = msb << 8;
-  res += lsb;	
-  return res;							
+  res += lsb;
+  return res;
 }
 
 int16_t ICACHE_FLASH_ATTR
 BMP180_readRawValue(uint8_t cmd) {
-  i2c_start();                  			
-  i2c_writeByte(BMP180_ADDRESS);   			
+  i2c_start();
+  i2c_writeByte(BMP180_ADDRESS);
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack4..\n return \n");
     i2c_stop();
     return(0);
   }
-  i2c_writeByte(BMP180_CTRL_REG);	          	
+  i2c_writeByte(BMP180_CTRL_REG);
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack5..\n return \n");
     i2c_stop();
     return(0);
   }
-  i2c_writeByte(cmd);       					
+  i2c_writeByte(cmd);
   if(!i2c_check_ack()){
-    //os_printf("slave not ack..\n return \n");
+//     os_printf("slave not ack6..\n return \n");
     i2c_stop();
     return(0);
   }
-  i2c_stop();                   			
+  i2c_stop();
   os_delay_us(CONVERSION_TIME*1000);
   int16_t res = BMP180_readRegister16(BMP180_DATA_REG);
   return res;
@@ -83,7 +83,7 @@ BMP180_GetVal(uint8_t mode)
   UP = BMP180_readRawValue(BMP_CMD_MEASURE_PRESSURE_0);
 
   X1 = (UT - (int32_t)ac6) * ((int32_t)ac5) >> 15;
-  X2 = ((int32_t)mc << 11) / (X1 + (int32_t)md); 
+  X2 = ((int32_t)mc << 11) / (X1 + (int32_t)md);
   B5 = X1 + X2;
   T  = (B5+8) >> 4;
 
@@ -125,7 +125,7 @@ BMP180_Init()
   if (!BMP180_readRegister16(BMP180_VERSION_REG))
     return 0;
 
-  ac1 = BMP180_readRegister16(0xAA);				 
+  ac1 = BMP180_readRegister16(0xAA);
   ac2 = BMP180_readRegister16(0xAC);
   ac3 = BMP180_readRegister16(0xAE);
   ac4 = BMP180_readRegister16(0xB0);
@@ -136,7 +136,6 @@ BMP180_Init()
   mb =  BMP180_readRegister16(0xBA);
   mc =  BMP180_readRegister16(0xBC);
   md =  BMP180_readRegister16(0xBE);
-  
+
   return 1;
 }
-
