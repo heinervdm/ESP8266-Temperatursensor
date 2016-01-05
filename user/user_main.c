@@ -22,12 +22,12 @@
 #include "dht.h"
 #endif
 
-#define user_procTaskPrio        0
-#define user_procTaskQueueLen    1
+// #define user_procTaskPrio        0
+// #define user_procTaskQueueLen    1
 
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
-os_event_t    user_procTaskQueue[user_procTaskQueueLen];
-static os_timer_t some_timer;
+// os_event_t    user_procTaskQueue[user_procTaskQueueLen];
+// static os_timer_t some_timer;
 
 unsigned char *default_certificate;
 unsigned int default_certificate_len = 0;
@@ -57,8 +57,7 @@ void ICACHE_FLASH_ATTR getHexStr(char *buf, uint8_t *arr, uint8_t size) {
 	buf[size*2] = '\0';
 }
 
-static uint8_t ICACHE_FLASH_ATTR search_sensors(void)
-{
+static uint8_t ICACHE_FLASH_ATTR search_sensors(void) {
 	uint8_t i;
 	uint8_t id[OW_ROMCODE_SIZE];
 	uint8_t diff, nSensors;
@@ -121,7 +120,8 @@ static void ICACHE_FLASH_ATTR disconnect_callback(void * arg) {
 		os_free(conn);
 	}
 
-// 	system_deep_sleep_set_option(2);
+	// No Wifi after wake up, we will start it manually
+	system_deep_sleep_set_option(4);
 	system_deep_sleep(1000*1000*60*5);
 }
 
@@ -239,9 +239,9 @@ static void ICACHE_FLASH_ATTR some_timerfunc(void *arg) {
 }
 
 //Do nothing function
-static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events) {
-	os_delay_us(10);
-}
+// static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events) {
+// 	os_delay_us(10);
+// }
 
 void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 	os_printf("event %x\n", evt->event);
@@ -255,7 +255,7 @@ void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 			os_printf("disconnect from ssid %s, reason %d\n",
 					  evt->event_info.disconnected.ssid,
 			 evt->event_info.disconnected.reason);
-			os_timer_disarm(&some_timer);
+// 			os_timer_disarm(&some_timer);
 			break;
 		case EVENT_STAMODE_AUTHMODE_CHANGE:
 			os_printf("mode: %d -> %d\n",
@@ -280,73 +280,11 @@ void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 	}
 }
 
-/******************************************************************************
- * FunctionName : scan_done
- * Description  : scan done callback
- * Parameters   :  arg: contain the aps information;
- *                         status: scan over status
- * Returns      : none
- *******************************************************************************/
-void ICACHE_FLASH_ATTR
-scan_done(void *arg, STATUS status)
-{
-	uint8 ssid[33];
-	char temp[128];
-	
-	if (status == OK)
-	{
-		struct bss_info *bss_link = (struct bss_info *)arg;
-		bss_link = bss_link->next.stqe_next;//ignore the first one , it's invalid.
-		
-		while (bss_link != NULL)
-		{
-			os_memset(ssid, 0, 33);
-			if (os_strlen(bss_link->ssid) <= 32)
-			{
-				os_memcpy(ssid, bss_link->ssid, os_strlen(bss_link->ssid));
-			}
-			else
-			{
-				os_memcpy(ssid, bss_link->ssid, 32);
-			}
-			os_printf("(%d,\"%s\",%d,\""MACSTR"\",%d)\r\n",
-					  bss_link->authmode, ssid, bss_link->rssi,
-			 MAC2STR(bss_link->bssid),bss_link->channel);
-			bss_link = bss_link->next.stqe_next;
-		}
-	}
-	else
-	{
-		os_printf("scan fail !!!\r\n");
-	}
-	
-}
-
-/******************************************************************************
- * FunctionName : user_scan
- * Description  : wifi scan, only can be called after system init done.
- * Parameters   :  none
- * Returns      : none
- *******************************************************************************/
-void ICACHE_FLASH_ATTR
-user_scan(void)
-{
-	if(wifi_get_opmode() == SOFTAP_MODE)
-	{
-		os_printf("ap mode can't scan !!!\r\n");
-		return;
-	}
-	wifi_station_scan(NULL,scan_done);
-	
-}
-
-//Init function 
-void ICACHE_FLASH_ATTR user_init() {
+void ICACHE_FLASH_ATTR init_done(void) {
+	os_printf("Init done!\n");
 	char ssid[32] = SSID;
 	char password[64] = SSID_PASSWORD;
 	struct station_config stationConf;
-	stdoutInit();
-
 	// Set station mode
 	wifi_set_opmode(STATION_MODE);
 
@@ -356,10 +294,17 @@ void ICACHE_FLASH_ATTR user_init() {
 	os_memcpy(&stationConf.ssid, ssid, 32);
 	os_memcpy(&stationConf.password, password, 64);
 	wifi_station_set_config(&stationConf);
-
+	wifi_station_disconnect();
 	wifi_set_event_handler_cb(&wifi_handle_event_cb);
+	os_printf("Connecting to Wifi\n");
+	wifi_station_connect();
+}
 
-// 	system_init_done_cb(user_scan);
+//Init function 
+void ICACHE_FLASH_ATTR user_init() {
+	stdoutInit();
 
-	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
+	system_init_done_cb(init_done);
+
+// 	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
 }
