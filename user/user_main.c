@@ -27,7 +27,7 @@
 
 uint8_t gSensorIDs[MAXSENSORS][OW_ROMCODE_SIZE];
 // os_event_t    user_procTaskQueue[user_procTaskQueueLen];
-// static os_timer_t some_timer;
+static os_timer_t fail_timer;
 
 unsigned char *default_certificate;
 unsigned int default_certificate_len = 0;
@@ -121,7 +121,7 @@ static void ICACHE_FLASH_ATTR disconnect_callback(void * arg) {
 	}
 
 	// No Wifi after wake up, we will start it manually
-	system_deep_sleep_set_option(4);
+// 	system_deep_sleep_set_option(4);
 	system_deep_sleep(1000*1000*60*5);
 }
 
@@ -219,6 +219,11 @@ if (ret == 1) {
 	espconn_sent(conn, (uint8_t *)buf, len);
 }
 
+static void ICACHE_FLASH_ATTR fail_timerfunc(void *arg) {
+	os_printf("Connect seems to have failed. Going to sleep and trying again in 5 minutes.\n");
+	system_deep_sleep(1000*1000*60*5);
+}
+
 static void ICACHE_FLASH_ATTR some_timerfunc(void *arg) {
 	ip_addr_t addr;
 	IPADDR(&addr);
@@ -238,10 +243,6 @@ static void ICACHE_FLASH_ATTR some_timerfunc(void *arg) {
 	espconn_connect(conn);
 }
 
-//Do nothing function
-// static void ICACHE_FLASH_ATTR user_procTask(os_event_t *events) {
-// 	os_delay_us(10);
-// }
 
 void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 	os_printf("event %x\n", evt->event);
@@ -255,7 +256,6 @@ void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 			os_printf("disconnect from ssid %s, reason %d\n",
 					  evt->event_info.disconnected.ssid,
 			 evt->event_info.disconnected.reason);
-// 			os_timer_disarm(&some_timer);
 			break;
 		case EVENT_STAMODE_AUTHMODE_CHANGE:
 			os_printf("mode: %d -> %d\n",
@@ -263,15 +263,14 @@ void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 			 evt->event_info.auth_change.new_mode);
 			break;
 		case EVENT_STAMODE_GOT_IP:
+			// Connection done, disable fail timer
+			os_timer_disarm(&fail_timer);
 			os_printf("ip:" IPSTR ",mask:" IPSTR ",gw:" IPSTR,
 					  IP2STR(&evt->event_info.got_ip.ip),
 					  IP2STR(&evt->event_info.got_ip.mask),
 					  IP2STR(&evt->event_info.got_ip.gw));
 			os_printf("\n");
 
-// 			os_timer_disarm(&some_timer);
-// 			os_timer_setfn(&some_timer, (os_timer_func_t *)some_timerfunc, NULL);
-// 			os_timer_arm(&some_timer, 1000*60, 1);
 			os_delay_us(1);
 			some_timerfunc(NULL);
 			break;
@@ -282,6 +281,12 @@ void ICACHE_FLASH_ATTR wifi_handle_event_cb(System_Event_t *evt) {
 
 void ICACHE_FLASH_ATTR init_done(void) {
 	os_printf("Init done!\n");
+
+	// Start fail timer, if we have no ip within 10 seconds, go to sleep again
+	os_timer_disarm(&fail_timer);
+	os_timer_setfn(&fail_timer, (os_timer_func_t *)fail_timerfunc, NULL);
+	os_timer_arm(&fail_timer, 1000*10, 0);
+
 	char ssid[32] = SSID;
 	char password[64] = SSID_PASSWORD;
 	struct station_config stationConf;
@@ -303,8 +308,5 @@ void ICACHE_FLASH_ATTR init_done(void) {
 //Init function 
 void ICACHE_FLASH_ATTR user_init() {
 	stdoutInit();
-
 	system_init_done_cb(init_done);
-
-// 	system_os_task(user_procTask, user_procTaskPrio,user_procTaskQueue, user_procTaskQueueLen);
 }
