@@ -27,6 +27,7 @@
 	}
 	$db = new SQLite3('log.db');
 	$db->exec("CREATE TABLE IF NOT EXISTS value (valueid INTEGER PRIMARY KEY ASC, value REAL, daemonid INTEGER, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
+	$db->exec("CREATE UNIQUE INDEX IF NOT EXISTS valueidx ON value (daemonid, time);");
 	$db->exec("CREATE TABLE IF NOT EXISTS daemon (daemonid INTEGER PRIMARY KEY ASC, unit TEXT, name TEXT UNIQUE, shortname TEXT UNIQUE, uid TEXT UNIQUE);");
 	if (isset($_REQUEST["uid"]) && isset($_REQUEST["value"])) {
 		for ($i = 0; $i < sizeof($_REQUEST['uid']); $i++) {
