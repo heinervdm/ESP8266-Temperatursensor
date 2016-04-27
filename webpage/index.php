@@ -27,10 +27,10 @@
 	}
 	$db = new SQLite3('log.db');
 	$db->exec("CREATE TABLE IF NOT EXISTS value (valueid INTEGER PRIMARY KEY ASC, value REAL, daemonid INTEGER, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
-	$db->exec("DROP INDEX IF EXISTS valueidx;");
+// 	$db->exec("DROP INDEX IF EXISTS valueidx;");
 	$db->exec("CREATE UNIQUE INDEX IF NOT EXISTS valueidx ON value (daemonid, unixtime);");
-	$db->exec("ALTER TABLE value ADD COLUMN unixtime INTEGER;");
-	$db->exec("UPDATE value SET unixtime=strftime('%s', time, 'localtime');");
+// 	$db->exec("ALTER TABLE value ADD COLUMN unixtime INTEGER;");
+// 	$db->exec("UPDATE value SET unixtime=strftime('%s', time, 'localtime');");
 	$db->exec("CREATE TABLE IF NOT EXISTS daemon (daemonid INTEGER PRIMARY KEY ASC, unit TEXT, name TEXT UNIQUE, shortname TEXT UNIQUE, uid TEXT UNIQUE);");
 	if (isset($_REQUEST["uid"]) && isset($_REQUEST["value"])) {
 		for ($i = 0; $i < sizeof($_REQUEST['uid']); $i++) {
