@@ -196,7 +196,7 @@
 			$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
 			$data[$i]['pointStrokeColor'] = '#fff';
 			$data[$i]['data'] = array();
-			$stmt2 = $db->prepare("SELECT value, strftime('%s',time, 'localtime')*1000 AS time FROM value WHERE daemonid=:id AND time BETWEEN datetime(:starttime, 'unixepoch', 'localtime') AND datetime(:endtime, 'unixepoch', 'localtime') ORDER BY time ASC;");
+			$stmt2 = $db->prepare("SELECT value, strftime('%s',time, 'localtime')*1000 AS time FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
 			$stmt2->bindValue(':id', $row['daemonid']);
 			$stmt2->bindValue(':starttime', $starttime);
 			$stmt2->bindValue(':endtime', $endtime);
