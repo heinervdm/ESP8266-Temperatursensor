@@ -196,7 +196,7 @@
 			$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
 			$data[$i]['pointStrokeColor'] = '#fff';
 			$data[$i]['data'] = array();
-			$stmt2 = $db->prepare("SELECT value, strftime('%s',time, 'localtime')*1000 AS time FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
+			$stmt2 = $db->prepare("SELECT value, unixtime FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
 			$stmt2->bindValue(':id', $row['daemonid']);
 			$stmt2->bindValue(':starttime', $starttime);
 			$stmt2->bindValue(':endtime', $endtime);
@@ -204,7 +204,7 @@
 			$j=0;
 			while ($row2 = $results2->fetchArray()) {
 	// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
-				$data[$i]['data'][$j]['x']=$row2['time'];
+				$data[$i]['data'][$j]['x']=$row2['unixtime']*1000;
 				$data[$i]['data'][$j]['y']=$row2['value'];
 				$j++;
 			}
