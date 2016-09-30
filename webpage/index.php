@@ -25,7 +25,8 @@
 		}
 		return $url;
 	}
-	$db = new SQLite3('log.db');
+// 	$db = new PDO('mysql:host=localhost;dbname=logdb', $user, $pass);
+	$db = new PDO('sqlite:log.db');
 	$db->exec("CREATE TABLE IF NOT EXISTS value (valueid INTEGER PRIMARY KEY ASC, value REAL, daemonid INTEGER, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
 // 	$db->exec("DROP INDEX IF EXISTS valueidx;");
 	$db->exec("CREATE UNIQUE INDEX IF NOT EXISTS valueidx ON value (daemonid, unixtime);");
@@ -36,22 +37,22 @@
 		for ($i = 0; $i < sizeof($_REQUEST['uid']); $i++) {
 			echo "Adding value ".$i.": ".$_REQUEST["value"][$i]."; uid: ".$_REQUEST['uid'][$i].";";
 			$stmt = $db->prepare('SELECT daemonid FROM daemon WHERE uid = :uid');
-			$stmt->bindValue(':uid', $_REQUEST["uid"][$i], SQLITE3_TEXT);
-			$results = $stmt->execute();
-			$row = $results->fetchArray();
+			$stmt->bindValue(':uid', $_REQUEST["uid"][$i], PDO::PARAM_STR);
+			$stmt->execute();
+			$row = $stmt->fetch(PDO::FETCH_ASSOC);
 			$daemonid = 0;
 			if (isset($row['daemonid'])) {
 				$daemonid = $row['daemonid'];
 			} else {
 				$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname) VALUES (:uid, :uid, :uid);');
-				$stmt->bindValue(':uid', $_REQUEST["uid"][$i], SQLITE3_TEXT);
+				$stmt->bindValue(':uid', $_REQUEST["uid"][$i], PDO::PARAM_STR);
 				$stmt->execute();
-				$daemonid = $db->lastInsertRowID();
+				$daemonid = $db->lastInsertId();
 			}
 
 			$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, strftime('%s', 'now', 'localtime'));");
-			$stmt->bindValue(':daemonid', $daemonid, SQLITE3_INTEGER);
-			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], SQLITE3_FLOAT);
+			$stmt->bindValue(':daemonid', $daemonid, PDO::PARAM_INT);
+			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], PDO::PARAM_STR);
 			$stmt->execute();
 		}
 		$db->close();
@@ -59,29 +60,29 @@
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="adddaemon"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])) {
 		$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname, unit) VALUES (:uid, :name, :shortname, :unit);');
-		$stmt->bindValue(':name', $_REQUEST["name"], SQLITE3_TEXT);
-		$stmt->bindValue(':shortname', $_REQUEST["shortname"], SQLITE3_TEXT);
-		$stmt->bindValue(':unit', $_REQUEST["unit"], SQLITE3_TEXT);
-		$stmt->bindValue(':uid', $_REQUEST["uid"], SQLITE3_TEXT);
+		$stmt->bindValue(':name', $_REQUEST["name"], PDO::PARAM_STR);
+		$stmt->bindValue(':shortname', $_REQUEST["shortname"], PDO::PARAM_STR);
+		$stmt->bindValue(':unit', $_REQUEST["unit"], PDO::PARAM_STR);
+		$stmt->bindValue(':uid', $_REQUEST["uid"], PDO::PARAM_STR);
 		$stmt->execute();
 
-		$daemonid = $db->lastInsertRowID();
+		$daemonid = $db->lastInsertId();
 		$msg='		<div class="message">Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="edit"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit WHERE daemonid=:daemonid;');
-		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
-		$stmt->bindValue(':name', $_REQUEST["name"], SQLITE3_TEXT);
-		$stmt->bindValue(':shortname', $_REQUEST["shortname"], SQLITE3_TEXT);
-		$stmt->bindValue(':unit', $_REQUEST["unit"], SQLITE3_TEXT);
-		$stmt->bindValue(':uid', $_REQUEST["uid"], SQLITE3_TEXT);
+		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], PDO::PARAM_INT);
+		$stmt->bindValue(':name', $_REQUEST["name"], PDO::PARAM_STR);
+		$stmt->bindValue(':shortname', $_REQUEST["shortname"], PDO::PARAM_STR);
+		$stmt->bindValue(':unit', $_REQUEST["unit"], PDO::PARAM_STR);
+		$stmt->bindValue(':uid', $_REQUEST["uid"], PDO::PARAM_STR);
 		$stmt->execute();
 
 		$msg='		<div class="message">Updated Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="delete"&&isset($_REQUEST['daemonid'])) {
 		$stmt = $db->prepare('DELETE FROM daemon WHERE daemonid=:daemonid;');
-		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], SQLITE3_INTEGER);
+		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], PDO::PARAM_INT);
 		$stmt->execute();
 		$msg='		<div class="message">Sensor '.$_REQUEST['daemonid']." deleted.</div>\n";
 	}
@@ -144,7 +145,7 @@
 				</tr>
 <?php
 	$results = $db->query('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
-	while ($row = $results->fetchArray()) {
+	while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
 ?>
 				<tr>
 					<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
@@ -187,9 +188,9 @@
 		for ($i=0;$i<sizeof($_REQUEST['show']);$i++) {
 			$stmt->bindValue(':id'.$i, $_REQUEST['show'][$i]);
 		}
-		$results = $stmt->execute();
+		$stmt->execute();
 		$i=0;
-		while ($row = $results->fetchArray()) {
+		while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 			$c = $i + 10;
 			$data[$i]['label'] = $row['name'];
 			$data[$i]['strokeColor'] = $colors[$i%sizeof($colors)];
@@ -200,9 +201,9 @@
 			$stmt2->bindValue(':id', $row['daemonid']);
 			$stmt2->bindValue(':starttime', $starttime);
 			$stmt2->bindValue(':endtime', $endtime);
-			$results2 = $stmt2->execute();
+			$stmt2->execute();
 			$j=0;
-			while ($row2 = $results2->fetchArray()) {
+			while ($row2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
 	// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
 				$data[$i]['data'][$j]['x']=$row2['unixtime']*1000;
 				$data[$i]['data'][$j]['y']=$row2['value'];
@@ -266,8 +267,8 @@
 	if (isset($_REQUEST['edit'])) {
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['edit']);
-		$results = $stmt->execute();
-		if ($row = $results->fetchArray()) {
+		$stmt->execute();
+		if ($row = $stmt->fetchArray(PDO::FETCH_ASSOC)) {
 ?>
 		<h1 name="edit">Edit Daemon</h1>
 		<form class="tableform" action="index.php" method="POST">
@@ -303,8 +304,8 @@
 	if (isset($_REQUEST['delete'])) {
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['delete']);
-		$results = $stmt->execute();
-		if ($row = $results->fetchArray()) {
+		$stmt->execute();
+		if ($row = $stmt->fetchArray(PDO::FETCH_ASSOC)) {
 ?>
 		<h1 name="delete">Delete Daemon</h1>
 		<form action="index.php" method="POST">
