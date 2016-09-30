@@ -157,7 +157,7 @@
 				</tr>
 <?php
 	}
-	$results->finalize();
+// 	$results->finalize();
 ?>
 			</table>
 		</form>
