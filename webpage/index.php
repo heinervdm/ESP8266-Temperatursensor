@@ -268,7 +268,7 @@
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['edit']);
 		$stmt->execute();
-		if ($row = $stmt->fetchArray(PDO::FETCH_ASSOC)) {
+		if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 ?>
 		<h1 name="edit">Edit Daemon</h1>
 		<form class="tableform" action="index.php" method="POST">
@@ -305,7 +305,7 @@
 		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['delete']);
 		$stmt->execute();
-		if ($row = $stmt->fetchArray(PDO::FETCH_ASSOC)) {
+		if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 ?>
 		<h1 name="delete">Delete Daemon</h1>
 		<form action="index.php" method="POST">
