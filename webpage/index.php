@@ -158,7 +158,7 @@ if ($usemysql) {
 	if (!$usemysql) {
 		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
 	} else {
-		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, CONVERT_TZ( time), \'UTC\', \''.$timezone.'\' ) AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
+		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, CONVERT_TZ( time, \'UTC\', \''.$timezone.'\' ) AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
 	
 	}
 	$ok = $stmt->execute();
