@@ -59,7 +59,6 @@ if ($usemysql) {
 			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], PDO::PARAM_STR);
 			$stmt->execute();
 		}
-		$db->close();
  		exit;
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="adddaemon"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])) {
