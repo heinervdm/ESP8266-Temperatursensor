@@ -148,8 +148,8 @@ if ($usemysql) {
 					<th></th>
 				</tr>
 <?php
-	$results = $db->query('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
-	while ($row = $results->fetch(PDO::FETCH_ASSOC)) {
+	$results = $db->query('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;', PDO::FETCH_ASSOC);
+	foreach ($result as $row) {
 ?>
 				<tr>
 					<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
