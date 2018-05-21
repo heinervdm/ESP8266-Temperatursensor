@@ -1,4 +1,5 @@
 <?php
+	require_once("config.php");
 	date_default_timezone_set('Europe/Berlin');
 	function buildUrl($ignorekey='') {
 		$url=$_SERVER['PHP_SELF'];
@@ -25,8 +26,11 @@
 		}
 		return $url;
 	}
-// 	$db = new PDO('mysql:host=localhost;dbname=logdb', $user, $pass);
-	$db = new PDO('sqlite:log.db');
+if ($usemysql) {
+	$db = new PDO('mysql:host='.$mysqlhost.';dbname='.$mysqldb, $mysqluser, $mysqlpwd);
+} else {
+ 	$db = new PDO('sqlite:'.$sqlitefile);
+}
 	$db->exec("CREATE TABLE IF NOT EXISTS value (valueid INTEGER PRIMARY KEY ASC, value REAL, daemonid INTEGER, time TIMESTAMP DEFAULT CURRENT_TIMESTAMP);");
 // 	$db->exec("DROP INDEX IF EXISTS valueidx;");
 	$db->exec("CREATE UNIQUE INDEX IF NOT EXISTS valueidx ON value (daemonid, unixtime);");
