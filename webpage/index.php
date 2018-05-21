@@ -155,12 +155,7 @@ if ($usemysql) {
 					<th></th>
 				</tr>
 <?php
-	if (!$usemysql) {
-		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
-	} else {
-		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, CONVERT_TZ( time, \'UTC\', \''.$timezone.'\' ) AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
-	
-	}
+	$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, unixtime FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
 	$ok = $stmt->execute();
 	if (!$ok) {
 		print_r($stmt->errorInfo());
@@ -171,7 +166,15 @@ if ($usemysql) {
 					<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
 					<td><?php echo $row['shortname'];?></td>
 					<td><?php echo $row['value'];?> <?php echo $row['unit'];?></td>
-					<td><?php echo date('d.m.Y H:i:s',strtotime($row['time']));?></td>
+					<td>
+					<?php
+					$dt = new DateTime();
+					$tz = new DateTimeZone($timezone); 
+					$dt->setTimestamp($row["unixtime"]);
+					$dt->setTimezone($tz);
+					echo $dt->format('d.m.Y H:i:s');
+					?>
+					</td>
 					<td><input type="checkbox" name="show[]" value="<?php echo $row['daemonid'];?>" <?php if (isset($_REQUEST['show']) && in_array($row['daemonid'],$_REQUEST['show'])) echo 'checked="checked"';?> onchange="this.form.submit()" /></td>
 					<td><a href="?edit=<?php echo $row['daemonid'];?>#edit">Edit</a> <a href="?delete=<?php echo $row['daemonid'];?>#delete">Delete</a> </td>
 				</tr>

@@ -18,10 +18,10 @@ BUILD_BASE	= build
 FW_BASE		= firmware
 
 # base directory for the compiler
-XTENSA_TOOLS_ROOT ?= /opt/cross/xtensa-lx106-g++/bin/
+XTENSA_TOOLS_ROOT ?= /home/zimmermann/Source/esp-open-sdk/xtensa-lx106-elf/bin
 
 # base directory of the ESP8266 SDK package, absolute
-SDK_BASE	?= /opt/cross/xtensa-lx106-g++/
+SDK_BASE	?= /home/zimmermann/Source/esp-open-sdk/sdk/
 
 # esptool.py path and port
 ESPTOOL		?= esptool.py
@@ -35,7 +35,7 @@ MODULES		= driver user
 EXTRA_INCDIR    = include
 
 # libraries used in this project, mainly provided by the SDK
-LIBS		= c gcc hal pp phy net80211 lwip wpa main ssl crypto
+LIBS		= c gcc hal pp phy net80211 lwip wpa main ssl crypto cirom
 
 # compiler flags using during compilation of source files
 CFLAGS		= -Os -g -O2 -Wpointer-arith -Wundef -Werror -Wl,-EL -std=c99 -fno-inline-functions -nostdlib -mlongcalls -mtext-section-literals  -D__ets__ -DICACHE_FLASH
