@@ -54,7 +54,7 @@ if ($usemysql) {
 				$daemonid = $db->lastInsertId();
 			}
 
-			if ($usemysql) {
+			if (!$usemysql) {
 				$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, strftime('%s', 'now', 'localtime'));");
 			} else {
 				$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, UNIX_TIMESTAMP());");
