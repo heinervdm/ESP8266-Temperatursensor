@@ -54,7 +54,11 @@ if ($usemysql) {
 				$daemonid = $db->lastInsertId();
 			}
 
-			$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, strftime('%s', 'now', 'localtime'));");
+			if ($usemysql) {
+				$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, strftime('%s', 'now', 'localtime'));");
+			} else {
+				$stmt = $db->prepare("INSERT INTO value (daemonid, value, unixtime) VALUES (:daemonid, :value, UNIX_TIMESTAMP());");
+			}
 			$stmt->bindValue(':daemonid', $daemonid, PDO::PARAM_INT);
 			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], PDO::PARAM_STR);
 			$stmt->execute();
