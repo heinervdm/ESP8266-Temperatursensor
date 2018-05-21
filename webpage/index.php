@@ -155,7 +155,10 @@ if ($usemysql) {
 				</tr>
 <?php
 	$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
-	$stmt->execute();
+	$ok = $stmt->execute();
+	if (!$ok) {
+		print_r($stmt->errorInfo());
+	}
 	while ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
 ?>
 				<tr>
