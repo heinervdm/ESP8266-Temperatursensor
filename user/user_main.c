@@ -22,6 +22,10 @@
 #include "dht.h"
 #endif
 
+#ifdef READ_ADS1115
+#include "i2c_ads1115.h"
+#endif
+
 // #define user_procTaskPrio        0
 // #define user_procTaskQueueLen    1
 
@@ -95,7 +99,9 @@ int32_t ICACHE_FLASH_ATTR getTemperature(uint8_t sensor) {
 	int32_t temp;
 
 	if ( DS18X20_start_meas( DS18X20_POWER_EXTERN, &gSensorIDs[sensor][0] ) == DS18X20_OK ) {
-		os_delay_us( DS18B20_TCONV_12BIT * 1000);
+		for (uint16 i = 0; i < DS18B20_TCONV_12BIT; i++) {
+			os_delay_us(1000);
+		}
 		if ( DS18X20_read_maxres( &gSensorIDs[sensor][0], &temp) != DS18X20_OK ) {
 			os_printf("DS18X20: crc error\n");
 		}
@@ -193,6 +199,20 @@ if (ret == 1) {
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 		os_sprintf(buf2,"&value[]=%d&uid[]=%s%s",(int)(result->humidity),macstr,"/humidity");
+		os_strcat(buf1, buf2);
+		os_delay_us(1);
+	}
+#endif
+#ifdef READ_ADS1115
+	ADS1115_init();
+	uint16_t adsres = ADS1115_readRawValue();
+	// 0V - 3.3V = 0 - 0xFFFF
+	// 0V - 5V   = 0 - 5/3.3*0xFFFF
+	// 0V - 5V   = 0 - 14
+	uint16_t ph100 = adsres * 14 * 330 / (5*0xFFF);
+	{
+		char buf2[50];
+		os_sprintf(buf2,"&value[]=%d.%001d&uid[]=%s%s",ph100/100,ph100%100,macstr,"/ph");
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 	}
