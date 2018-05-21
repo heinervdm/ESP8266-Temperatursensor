@@ -1,6 +1,7 @@
 <?php
 	require_once("config.php");
-	date_default_timezone_set('Europe/Berlin');
+	$timezone = 'Europe/Berlin';
+	date_default_timezone_set($timezone);
 	function buildUrl($ignorekey='') {
 		$url=$_SERVER['PHP_SELF'];
 		$first=true;
@@ -154,7 +155,12 @@ if ($usemysql) {
 					<th></th>
 				</tr>
 <?php
-	$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
+	if (!$usemysql) {
+		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, datetime(time, \'localtime\') AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
+	} else {
+		$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, CONVERT_TZ( time), \'UTC\', \''.$timezone.'\' ) AS time FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
+	
+	}
 	$ok = $stmt->execute();
 	if (!$ok) {
 		print_r($stmt->errorInfo());
