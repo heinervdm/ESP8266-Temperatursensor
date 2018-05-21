@@ -61,7 +61,10 @@ if ($usemysql) {
 			}
 			$stmt->bindValue(':daemonid', $daemonid, PDO::PARAM_INT);
 			$stmt->bindValue(':value', (float)$_REQUEST["value"][$i], PDO::PARAM_STR);
-			$stmt->execute();
+			$ok = $stmt->execute();
+			if (!$ok) {
+				print_r($stmt->errorInfo());
+			}
 		}
  		exit;
 	}
