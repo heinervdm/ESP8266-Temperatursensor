@@ -155,7 +155,7 @@ if ($usemysql) {
 					<th></th>
 				</tr>
 <?php
-	$stmt = $db->prepare('SELECT daemonid, shortname, unit, uid, value, unixtime FROM value NATURAL INNER JOIN daemon GROUP BY daemonid, unit, shortname, uid ORDER BY daemonid ASC;');
+	$stmt = $db->prepare('SELECT d.daemonid, shortname, unit, uid, value, unixtime FROM daemon d JOIN (SELECT MAX(time) as maxtime, daemonid FROM value GROUP BY daemonid) m ON m.daemonid =  d.daemonid JOIN value v ON v.time = m.maxtime AND m.daemonid = v.daemonid ORDER BY daemonid;');
 	$ok = $stmt->execute();
 	if (!$ok) {
 		print_r($stmt->errorInfo());
