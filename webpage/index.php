@@ -219,7 +219,7 @@ if ($usemysql) {
 				var ctx = document.getElementById("chart").getContext("2d");
 				var data =<?php
 		$data = array();
-		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit FROM daemon WHERE daemonid IN ('.$ids.');');
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, calfunc FROM daemon WHERE daemonid IN ('.$ids.');');
 		for ($i=0;$i<sizeof($_REQUEST['show']);$i++) {
 			$stmt->bindValue(':id'.$i, $_REQUEST['show'][$i]);
 		}
@@ -232,7 +232,7 @@ if ($usemysql) {
 			$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
 			$data[$i]['pointStrokeColor'] = '#fff';
 			$data[$i]['data'] = array();
-			$stmt2 = $db->prepare("SELECT value, unixtime, calfunc FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
+			$stmt2 = $db->prepare("SELECT value, unixtime FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
 			$stmt2->bindValue(':id', $row['daemonid']);
 			$stmt2->bindValue(':starttime', $starttime);
 			$stmt2->bindValue(':endtime', $endtime);
@@ -242,9 +242,9 @@ if ($usemysql) {
 	// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
 				$data[$i]['data'][$j]['x']=$row2['unixtime']*1000;
 				
-				if (!empty($row2['calfunc']) && strpos($row2['calfunc'], '$x') !== false) {
+				if (!empty($row['calfunc']) && strpos($row['calfunc'], '$x') !== false) {
 					$x = $row2['value'];
-					eval('$result='.$row2["calfunc"].';');
+					eval('$result='.$row["calfunc"].';');
 					$data[$i]['data'][$j]['y']=$result;
 				} else {
 					$data[$i]['data'][$j]['y']=$row2['value'];
