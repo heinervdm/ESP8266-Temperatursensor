@@ -206,13 +206,9 @@ if (ret == 1) {
 #ifdef READ_ADS1115
 	ADS1115_init();
 	uint16_t adsres = ADS1115_readRawValue();
-	// 0V - 3.3V = 0 - 0xFFFF
-	// 0V - 5V   = 0 - 5/3.3*0xFFFF
-	// 0V - 5V   = 0 - 14
-	uint16_t ph100 = adsres * 14 * 330 / (5*0xFFF);
 	{
 		char buf2[50];
-		os_sprintf(buf2,"&value[]=%d.%001d&uid[]=%s%s",ph100/100,ph100%100,macstr,"/ph");
+		os_sprintf(buf2,"&value[]=%ul&uid[]=%s%s",adsres,macstr,"/ph");
 		os_strcat(buf1, buf2);
 		os_delay_us(1);
 	}

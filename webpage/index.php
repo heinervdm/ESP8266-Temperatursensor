@@ -37,7 +37,7 @@ if ($usemysql) {
 	$db->exec("CREATE UNIQUE INDEX IF NOT EXISTS valueidx ON value (daemonid, unixtime);");
 // 	$db->exec("ALTER TABLE value ADD COLUMN unixtime INTEGER;");
 // 	$db->exec("UPDATE value SET unixtime=strftime('%s', time, 'localtime');");
-	$db->exec("CREATE TABLE IF NOT EXISTS daemon (daemonid INTEGER PRIMARY KEY ASC, unit TEXT, name TEXT UNIQUE, shortname TEXT UNIQUE, uid TEXT UNIQUE);");
+	$db->exec("CREATE TABLE IF NOT EXISTS daemon (daemonid INTEGER PRIMARY KEY ASC, unit TEXT, name TEXT UNIQUE, shortname TEXT UNIQUE, uid TEXT UNIQUE, calfunc TEXT);");
 	if (isset($_REQUEST["uid"]) && isset($_REQUEST["value"])) {
 		for ($i = 0; $i < sizeof($_REQUEST['uid']); $i++) {
 			echo "Adding value ".$i.": ".$_REQUEST["value"][$i]."; uid: ".$_REQUEST['uid'][$i].";";
@@ -70,23 +70,25 @@ if ($usemysql) {
  		exit;
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="adddaemon"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])) {
-		$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname, unit) VALUES (:uid, :name, :shortname, :unit);');
+		$stmt = $db->prepare('INSERT INTO daemon (uid, name, shortname, unit, calfunc) VALUES (:uid, :name, :shortname, :unit, :calfunc);');
 		$stmt->bindValue(':name', $_REQUEST["name"], PDO::PARAM_STR);
 		$stmt->bindValue(':shortname', $_REQUEST["shortname"], PDO::PARAM_STR);
 		$stmt->bindValue(':unit', $_REQUEST["unit"], PDO::PARAM_STR);
 		$stmt->bindValue(':uid', $_REQUEST["uid"], PDO::PARAM_STR);
+		$stmt->bindValue(':calfunc', $_REQUEST["calfunc"], PDO::PARAM_STR);
 		$stmt->execute();
 
 		$daemonid = $db->lastInsertId();
 		$msg='		<div class="message">Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot; and id &quot;".$daemonid."&quot; created.</div>\n";
 	}
 	else if (isset($_REQUEST['action'])&&$_REQUEST['action']=="edit"&&isset($_REQUEST['uid'])&&isset($_REQUEST['name'])&&isset($_REQUEST['shortname'])&&isset($_REQUEST['unit'])&&isset($_REQUEST['daemonid'])) {
-		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit WHERE daemonid=:daemonid;');
+		$stmt = $db->prepare('UPDATE daemon SET uid=:uid, name=:name, shortname=:shortname, unit=:unit, calfunc=:calfunc WHERE daemonid=:daemonid;');
 		$stmt->bindValue(':daemonid', $_REQUEST["daemonid"], PDO::PARAM_INT);
 		$stmt->bindValue(':name', $_REQUEST["name"], PDO::PARAM_STR);
 		$stmt->bindValue(':shortname', $_REQUEST["shortname"], PDO::PARAM_STR);
 		$stmt->bindValue(':unit', $_REQUEST["unit"], PDO::PARAM_STR);
 		$stmt->bindValue(':uid', $_REQUEST["uid"], PDO::PARAM_STR);
+		$stmt->bindValue(':calfunc', $_REQUEST["calfunc"], PDO::PARAM_STR);
 		$stmt->execute();
 
 		$msg='		<div class="message">Updated Sensor '.$_REQUEST['shortname']." with name &quot;".$_REQUEST['name']."&quot;.</div>\n";
@@ -155,7 +157,7 @@ if ($usemysql) {
 					<th></th>
 				</tr>
 <?php
-	$stmt = $db->prepare('SELECT d.daemonid, shortname, unit, uid, value, unixtime FROM daemon d JOIN (SELECT MAX(time) as maxtime, daemonid FROM value GROUP BY daemonid) m ON m.daemonid =  d.daemonid JOIN value v ON v.time = m.maxtime AND m.daemonid = v.daemonid ORDER BY daemonid;');
+	$stmt = $db->prepare('SELECT d.daemonid, shortname, unit, uid, value, unixtime, calfunc FROM daemon d JOIN (SELECT MAX(time) as maxtime, daemonid FROM value GROUP BY daemonid) m ON m.daemonid =  d.daemonid JOIN value v ON v.time = m.maxtime AND m.daemonid = v.daemonid ORDER BY daemonid;');
 	$ok = $stmt->execute();
 	if (!$ok) {
 		print_r($stmt->errorInfo());
@@ -165,7 +167,17 @@ if ($usemysql) {
 				<tr>
 					<td alt="<?php echo $row['uid'];?>"><?php echo $row['daemonid'];?></td>
 					<td><?php echo $row['shortname'];?></td>
-					<td><?php echo $row['value'];?> <?php echo $row['unit'];?></td>
+					<td>
+						<?php
+							if (!empty($row['calfunc']) && strpos($row['calfunc'], '$x') !== false) {
+								$x = $row['value'];
+								eval('$value='.$row["calfunc"].';');
+								echo $value." ".$row['unit'];
+							} else {
+								echo $row['value']." ".$row['unit'];
+							}
+						?>
+					</td>
 					<td>
 					<?php
 					$dt = new DateTime();
@@ -220,7 +232,7 @@ if ($usemysql) {
 			$data[$i]['pointColor'] = $colors[$i%sizeof($colors)];
 			$data[$i]['pointStrokeColor'] = '#fff';
 			$data[$i]['data'] = array();
-			$stmt2 = $db->prepare("SELECT value, unixtime FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
+			$stmt2 = $db->prepare("SELECT value, unixtime, calfunc FROM value WHERE daemonid=:id AND unixtime BETWEEN :starttime AND :endtime ORDER BY unixtime ASC;");
 			$stmt2->bindValue(':id', $row['daemonid']);
 			$stmt2->bindValue(':starttime', $starttime);
 			$stmt2->bindValue(':endtime', $endtime);
@@ -229,7 +241,14 @@ if ($usemysql) {
 			while ($row2 = $stmt2->fetch(PDO::FETCH_ASSOC)) {
 	// 			$data[$i]['data'][$j]['x']=strftime("%Y-%m-%dT%H:%I:%S",$row2['time']);
 				$data[$i]['data'][$j]['x']=$row2['unixtime']*1000;
-				$data[$i]['data'][$j]['y']=$row2['value'];
+				
+				if (!empty($row2['calfunc']) && strpos($row2['calfunc'], '$x') !== false) {
+					$x = $row2['value'];
+					eval('$result='.$row2["calfunc"].';');
+					$data[$i]['data'][$j]['y']=$result;
+				} else {
+					$data[$i]['data'][$j]['y']=$row2['value'];
+				}
 				$j++;
 			}
 			$i++;
@@ -288,7 +307,7 @@ if ($usemysql) {
 
 <?php
 	if (isset($_REQUEST['edit'])) {
-		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid FROM daemon WHERE daemonid = :id;');
+		$stmt = $db->prepare('SELECT daemonid, name, shortname, unit, uid, calfunc FROM daemon WHERE daemonid = :id;');
 		$stmt->bindValue(':id', $_REQUEST['edit']);
 		$stmt->execute();
 		if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
@@ -310,6 +329,10 @@ if ($usemysql) {
 			<div>
 				<lable for="unit">Einheit:</lable>
 				<input id="unit" name="unit" type="text" value="<?php echo $row['unit'];?>" required="required" />
+			</div>
+			<div>
+				<lable for="calfunc">Kalibrationsfunktion: (muss $x enthalten)</lable>
+				<input id="calfunc" name="calfunc" type="text" value="<?php echo $row['calfunc'];?>" />
 			</div>
 			<div>
 				<input type="hidden" name="daemonid" value="<?php echo $row['daemonid'];?>" />
